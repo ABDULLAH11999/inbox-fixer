@@ -21,7 +21,9 @@
 /build
 
 # local JSON database states
-/data/
+/data/*
+!/data/blogs.json
+!/data/plans.json
 /data/users.json
 /data/settings.json
 /data/feedbacks.json

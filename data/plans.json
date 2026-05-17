@@ -1,0 +1,39 @@
+[
+  {
+    "id": "guest",
+    "name": "Guest",
+    "price": 0,
+    "is_paid": false,
+    "scans_limit": 3,
+    "features": [
+      "3 Scans/day",
+      "Plain English Explanations",
+      "DNS Fix Templates"
+    ]
+  },
+  {
+    "id": "free",
+    "name": "Free Account",
+    "price": 0,
+    "is_paid": false,
+    "scans_limit": 10,
+    "features": [
+      "10 Scans/day",
+      "Plain English Explanations",
+      "Scan History Log"
+    ]
+  },
+  {
+    "id": "pro",
+    "name": "Pro Plan",
+    "price": 9,
+    "is_paid": true,
+    "scans_limit": 999999,
+    "features": [
+      "Unlimited Scans",
+      "Daily Monitored Alerts",
+      "PDF Report Export",
+      "Priority Support"
+    ]
+  }
+]
