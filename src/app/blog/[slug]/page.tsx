@@ -21,12 +21,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const imageUrl = blog.image || '/og-image.png';
+
   return {
     title: blog.seo_title || `${blog.title} | InboxFixer Guide`,
     description: blog.seo_desc || blog.short_desc,
     keywords: blog.seo_keywords ? blog.seo_keywords.split(',').map((k: string) => k.trim()) : ['mail fixer', 'mail check', 'dns help'],
     alternates: {
       canonical: `https://inboxfixer.com/blog/${blog.slug}`
+    },
+    openGraph: {
+      title: blog.seo_title || `${blog.title} | InboxFixer Guide`,
+      description: blog.seo_desc || blog.short_desc,
+      type: 'article',
+      images: [
+        {
+          url: imageUrl,
+          alt: blog.title,
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: blog.seo_title || `${blog.title} | InboxFixer Guide`,
+      description: blog.seo_desc || blog.short_desc,
+      images: [imageUrl]
     }
   };
 }

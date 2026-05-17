@@ -6,7 +6,9 @@ import {
   getPayments, 
   getSettings, writeSettings, 
   getScans,
-  getBlogs, writeBlogs
+  getBlogs, writeBlogs,
+  getVisits,
+  getFeedbacks
 } from '@/lib/db';
 import { sendEmail } from '@/lib/mail';
 import { updateStaticSitemap } from '@/lib/sitemap';
@@ -25,6 +27,8 @@ export async function GET(req: NextRequest) {
     const settings = getSettings();
     const scansCount = getScans().length;
     const blogs = getBlogs().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const visits = getVisits();
+    const feedbacks = getFeedbacks().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     return NextResponse.json({
       success: true,
@@ -38,7 +42,9 @@ export async function GET(req: NextRequest) {
       plans,
       payments,
       settings,
-      blogs
+      blogs,
+      visits,
+      feedbacks
     });
 
   } catch (err: any) {

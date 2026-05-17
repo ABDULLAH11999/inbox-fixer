@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Shield, 
@@ -24,14 +24,17 @@ import {
   EyeOff,
   BookOpen,
   PlusCircle,
-  FileText
+  FileText,
+  TrendingUp,
+  Star
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminPage() {
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'plans' | 'payments' | 'config' | 'seo' | 'blogs'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'plans' | 'payments' | 'config' | 'seo' | 'blogs' | 'track' | 'feedback'>('overview');
+  const [timeFilter, setTimeFilter] = useState<'1day' | '7days' | '30days' | 'overall'>('7days');
   const router = useRouter();
 
   // Authentication states
@@ -437,6 +440,124 @@ export default function AdminPage() {
     }
   };
 
+  // --- VISITOR ANALYTICS PROCESSOR ---
+  const stats = useMemo(() => {
+    if (!adminData || !adminData.visits) {
+      return {
+        visitsCount: 0,
+        uniqueCount: 0,
+        revisitedCount: 0,
+        chartData: []
+      };
+    }
+
+    const now = new Date();
+    const filterVisits = adminData.visits.filter((v: any) => {
+      const visitDate = new Date(v.created_at);
+      const diffTime = now.getTime() - visitDate.getTime();
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+      if (timeFilter === '1day') return diffDays <= 1;
+      if (timeFilter === '7days') return diffDays <= 7;
+      if (timeFilter === '30days') return diffDays <= 30;
+      return true; // overall
+    });
+
+    const visitsCount = filterVisits.length;
+    const uniqueVisitorIds = new Set<string>();
+
+    const visitorMap = new Map<string, { total: number; revisited: boolean }>();
+    filterVisits.forEach((v: any) => {
+      uniqueVisitorIds.add(v.visitor_id);
+      if (!visitorMap.has(v.visitor_id)) {
+        visitorMap.set(v.visitor_id, { total: 0, revisited: false });
+      }
+      const current = visitorMap.get(v.visitor_id)!;
+      current.total += 1;
+      if (v.revisited) {
+        current.revisited = true;
+      }
+    });
+
+    let revisitedCount = 0;
+    visitorMap.forEach((val) => {
+      if (val.revisited || val.total > 1) {
+        revisitedCount++;
+      }
+    });
+
+    const uniqueCount = uniqueVisitorIds.size;
+
+    // Group chart data
+    let chartData: { label: string; count: number }[] = [];
+
+    if (timeFilter === '1day') {
+      for (let i = 23; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 60 * 60 * 1000);
+        const hourStr = d.getHours().toString().padStart(2, '0') + ':00';
+        
+        const count = filterVisits.filter((v: any) => {
+          const vDate = new Date(v.created_at);
+          return vDate.getFullYear() === d.getFullYear() &&
+                 vDate.getMonth() === d.getMonth() &&
+                 vDate.getDate() === d.getDate() &&
+                 vDate.getHours() === d.getHours();
+        }).length;
+
+        chartData.push({ label: hourStr, count });
+      }
+    } else if (timeFilter === '7days') {
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+        const count = filterVisits.filter((v: any) => {
+          const vDate = new Date(v.created_at);
+          return vDate.getFullYear() === d.getFullYear() &&
+                 vDate.getMonth() === d.getMonth() &&
+                 vDate.getDate() === d.getDate();
+        }).length;
+
+        chartData.push({ label: dateStr, count });
+      }
+    } else if (timeFilter === '30days') {
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+        const count = filterVisits.filter((v: any) => {
+          const vDate = new Date(v.created_at);
+          return vDate.getFullYear() === d.getFullYear() &&
+                 vDate.getMonth() === d.getMonth() &&
+                 vDate.getDate() === d.getDate();
+        }).length;
+
+        chartData.push({ label: dateStr, count });
+      }
+    } else {
+      for (let i = 14; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+        const count = filterVisits.filter((v: any) => {
+          const vDate = new Date(v.created_at);
+          return vDate.getFullYear() === d.getFullYear() &&
+                 vDate.getMonth() === d.getMonth() &&
+                 vDate.getDate() === d.getDate();
+        }).length;
+
+        chartData.push({ label: dateStr, count });
+      }
+    }
+
+    return {
+      visitsCount,
+      uniqueCount,
+      revisitedCount,
+      chartData
+    };
+  }, [adminData, timeFilter]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center">
@@ -635,6 +756,30 @@ export default function AdminPage() {
             >
               <Globe size={15} />
               SEO Settings
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('track'); setBlogFormOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-syne font-bold transition-all text-left cursor-pointer ${
+                activeTab === 'track' 
+                  ? 'bg-[#00ff88]/15 border border-[#00ff88]/30 text-[#00ff88]' 
+                  : 'text-[#6b7fa8] hover:text-white hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              <TrendingUp size={15} />
+              Track
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('feedback'); setBlogFormOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-syne font-bold transition-all text-left cursor-pointer ${
+                activeTab === 'feedback' 
+                  ? 'bg-[#00ff88]/15 border border-[#00ff88]/30 text-[#00ff88]' 
+                  : 'text-[#6b7fa8] hover:text-white hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              <Zap size={15} />
+              User Feedback
             </button>
 
           </nav>
@@ -1425,6 +1570,446 @@ export default function AdminPage() {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* TAB 8: VISITOR TRACKING & ANALYTICS */}
+        {activeTab === 'track' && adminData && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="space-y-2">
+                <h2 className="font-syne font-bold text-2xl text-white tracking-tight">Visitor Tracking & Performance</h2>
+                <p className="text-xs text-[#6b7fa8] font-mono">Real-time engagement analysis, unique browser sessions, and returning visitor metrics.</p>
+              </div>
+
+              {/* Range Selector Filter */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-[10px] font-mono text-[#6b7fa8] uppercase">Time Horizon:</span>
+                <select
+                  value={timeFilter}
+                  onChange={(e: any) => setTimeFilter(e.target.value)}
+                  className="bg-[#0f1729] border border-[#1e2d4a]/80 focus:border-[#00ff88] rounded-xl px-4 py-2 text-xs font-mono text-white focus:outline-none cursor-pointer"
+                >
+                  <option value="1day">Last 1 Day</option>
+                  <option value="7days">Last 7 Days</option>
+                  <option value="30days">Last 30 Days</option>
+                  <option value="overall">Overall Growth</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Metrics cards grid */}
+            <div className="grid sm:grid-cols-3 gap-6">
+              
+              <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4 group">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#00ff88]/5 rounded-full blur-2xl group-hover:bg-[#00ff88]/10 transition-all pointer-events-none" />
+                <div className="bg-[#00ff88]/10 p-3.5 rounded-full border border-[#00ff88]/20">
+                  <Eye className="text-[#00ff88]" size={22} />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">Total Visits</span>
+                  <span className="font-mono text-3xl font-bold text-white block">{stats.visitsCount}</span>
+                  <span className="text-[9px] font-mono text-[#6b7fa8] block">Total site page loads</span>
+                </div>
+              </div>
+
+              <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4 group">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#00ff88]/5 rounded-full blur-2xl group-hover:bg-[#00ff88]/10 transition-all pointer-events-none" />
+                <div className="bg-[#00ff88]/10 p-3.5 rounded-full border border-[#00ff88]/20">
+                  <Users className="text-[#00ff88]" size={22} />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">Unique Visitors</span>
+                  <span className="font-mono text-3xl font-bold text-white block">{stats.uniqueCount}</span>
+                  <span className="text-[9px] font-mono text-[#6b7fa8] block">Distinct browser sessions</span>
+                </div>
+              </div>
+
+              <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4 group">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#00ff88]/5 rounded-full blur-2xl group-hover:bg-[#00ff88]/10 transition-all pointer-events-none" />
+                <div className="bg-[#00ff88]/10 p-3.5 rounded-full border border-[#00ff88]/20">
+                  <Zap className="text-[#00ff88]" size={22} />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">People Revisited</span>
+                  <span className="font-mono text-3xl font-bold text-white block">{stats.revisitedCount}</span>
+                  <span className="text-[9px] font-mono text-[#6b7fa8] block">Returning visitors</span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Performance growth chart card */}
+            <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 md:p-8 shadow-xl space-y-6">
+              <div className="space-y-1">
+                <h3 className="font-syne font-bold text-base text-white">Performance Growth Chart</h3>
+                <p className="text-[11px] text-[#6b7fa8] font-mono">Visitor density over the selected time filter interval.</p>
+              </div>
+
+              {stats.chartData.length === 0 ? (
+                <div className="h-64 flex flex-col justify-center items-center text-center space-y-3 border border-[#1e2d4a]/40 rounded-2xl bg-[#020812]/20 p-6">
+                  <TrendingUp className="text-[#6b7fa8] animate-pulse" size={32} />
+                  <p className="text-xs font-mono text-[#6b7fa8]">No tracking log coordinates in this time horizon yet.</p>
+                  <p className="text-[10px] font-mono text-white/50 max-w-sm">Visits to your homepage or articles from active devices will dynamically update this graph instantly.</p>
+                </div>
+              ) : (() => {
+                const maxVal = Math.max(...stats.chartData.map(c => c.count), 5);
+                const chartWidth = 800;
+                const chartHeight = 240;
+                const padLeft = 50;
+                const padRight = 30;
+                const padTop = 30;
+                const padBottom = 45;
+
+                const plotWidth = chartWidth - padLeft - padRight;
+                const plotHeight = chartHeight - padTop - padBottom;
+
+                const points = stats.chartData.map((d, index) => {
+                  const x = padLeft + (index / Math.max(stats.chartData.length - 1, 1)) * plotWidth;
+                  const y = padTop + plotHeight - (d.count / maxVal) * plotHeight;
+                  return { x, y, label: d.label, count: d.count };
+                });
+
+                const linePath = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+                const areaPath = points.length > 0 
+                  ? `${linePath} L ${points[points.length - 1].x} ${padTop + plotHeight} L ${points[0].x} ${padTop + plotHeight} Z` 
+                  : '';
+
+                const yGrid = [0, 0.25, 0.5, 0.75, 1].map(fraction => {
+                  const val = Math.round(fraction * maxVal);
+                  const y = padTop + plotHeight - fraction * plotHeight;
+                  return { val, y };
+                });
+
+                return (
+                  <div className="w-full overflow-x-auto select-none">
+                    <div className="min-w-[650px] overflow-hidden">
+                      <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto overflow-visible">
+                        <defs>
+                          <linearGradient id="neonAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#00ff88" stopOpacity="0.25" />
+                            <stop offset="100%" stopColor="#00ff88" stopOpacity="0.0" />
+                          </linearGradient>
+                          <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="4" result="blur" />
+                            <feMerge>
+                              <feMergeNode in="blur" />
+                              <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                          </filter>
+                        </defs>
+
+                        {/* Y-Axis Horizontal Grid Lines & Labels */}
+                        {yGrid.map((grid, idx) => (
+                          <g key={idx} className="opacity-40">
+                            <line
+                              x1={padLeft}
+                              y1={grid.y}
+                              x2={chartWidth - padRight}
+                              y2={grid.y}
+                              stroke="#1e2d4a"
+                              strokeWidth="1"
+                              strokeDasharray="4 4"
+                            />
+                            <text
+                              x={padLeft - 10}
+                              y={grid.y + 4}
+                              fill="#6b7fa8"
+                              fontSize="10"
+                              fontFamily="monospace"
+                              textAnchor="end"
+                            >
+                              {grid.val}
+                            </text>
+                          </g>
+                        ))}
+
+                        {/* Area Under Line */}
+                        {areaPath && (
+                          <path d={areaPath} fill="url(#neonAreaGradient)" />
+                        )}
+
+                        {/* Connected Line Graph */}
+                        {linePath && (
+                          <path
+                            d={linePath}
+                            fill="none"
+                            stroke="#00ff88"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            filter="url(#neonGlow)"
+                          />
+                        )}
+
+                        {/* Data Points Interactivity */}
+                        {points.map((p, idx) => {
+                          const showLabel = timeFilter === '30days' ? idx % 3 === 0 : true;
+
+                          return (
+                            <g key={idx} className="group/point">
+                              {/* Hover Glow Background */}
+                              <circle
+                                cx={p.x}
+                                cy={p.y}
+                                r="8"
+                                className="fill-transparent group-hover/point:fill-[#00ff88]/20 transition-all duration-200 cursor-pointer"
+                              />
+                              {/* Point Circle */}
+                              <circle
+                                cx={p.x}
+                                cy={p.y}
+                                r="4"
+                                className="fill-[#0f1729] stroke-[#00ff88] stroke-2 group-hover/point:r-5 group-hover/point:fill-[#00ff88] transition-all duration-200 cursor-pointer"
+                              />
+
+                              {/* X Axis Labels */}
+                              {showLabel && (
+                                <text
+                                  x={p.x}
+                                  y={chartHeight - 15}
+                                  fill="#6b7fa8"
+                                  fontSize="9"
+                                  fontFamily="monospace"
+                                  textAnchor="middle"
+                                  className="pointer-events-none"
+                                >
+                                  {p.label}
+                                </text>
+                              )}
+
+                              {/* Interactive Tooltip Card */}
+                              <g className="opacity-0 group-hover/point:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                <rect
+                                  x={p.x - 45}
+                                  y={p.y - 36}
+                                  width="90"
+                                  height="24"
+                                  rx="6"
+                                  fill="#020812"
+                                  stroke="#1e2d4a"
+                                  strokeWidth="1.5"
+                                />
+                                <text
+                                  x={p.x}
+                                  y={p.y - 20}
+                                  fill="#00ff88"
+                                  fontSize="9"
+                                  fontFamily="monospace"
+                                  fontWeight="bold"
+                                  textAnchor="middle"
+                                >
+                                  {p.count} views
+                                </text>
+                              </g>
+                            </g>
+                          );
+                        })}
+                      </svg>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Detailed logs table */}
+            <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl overflow-hidden shadow-xl">
+              <div className="p-6 border-b border-[#1e2d4a]/50 flex justify-between items-center bg-[#020812]/20">
+                <h3 className="font-syne font-bold text-sm text-white">Live Visitor Stream</h3>
+                <span className="text-[10px] font-mono text-[#00ff88] bg-[#00ff88]/10 px-2 py-0.5 rounded border border-[#00ff88]/20 animate-pulse uppercase">
+                  Log Connection Secured
+                </span>
+              </div>
+              
+              {(!adminData.visits || adminData.visits.length === 0) ? (
+                <div className="text-center p-12 font-mono text-xs text-[#6b7fa8]">
+                  No logged traffic logs recorded in data/visits.json database yet.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-xs font-mono">
+                    <thead>
+                      <tr className="bg-[#020812]/50 border-b border-[#1e2d4a]/50 text-[#6b7fa8] uppercase text-[10px] tracking-wider">
+                        <th className="p-4 pl-6">IP Address</th>
+                        <th className="p-4">Visitor Path</th>
+                        <th className="p-4">Visitor Type</th>
+                        <th className="p-4 pr-6 text-right font-mono">Log timestamp</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#1e2d4a]/45">
+                      {adminData.visits.slice().reverse().slice(0, 10).map((v: any) => (
+                        <tr key={v.id} className="hover:bg-white/5 transition-all text-white">
+                          <td className="p-4 pl-6 font-semibold break-all text-white">
+                            {v.ip === '::1' || v.ip === '127.0.0.1' ? 'localhost (127.0.0.1)' : v.ip}
+                          </td>
+                          <td className="p-4 text-[#8b9fc0] font-mono">{v.path}</td>
+                          <td className="p-4">
+                            {v.revisited ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold text-[#00ff88] bg-[#00ff88]/10 border border-[#00ff88]/20">
+                                Returning Visitor
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold text-[#8b9fc0] bg-[#020812] border border-[#1e2d4a]/60">
+                                New Session
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-4 pr-6 text-right text-[#6b7fa8] font-mono">
+                            {new Date(v.created_at).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 9: USER FEEDBACKS */}
+        {activeTab === 'feedback' && adminData && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="space-y-2">
+              <h2 className="font-syne font-bold text-2xl text-white tracking-tight">User Feedbacks Registry</h2>
+              <p className="text-xs text-[#6b7fa8] font-mono">Real-time feedback submitted by guests and registered scanners.</p>
+            </div>
+
+            {/* Glowing Analytical Cards */}
+            {(() => {
+              const feedbacks = adminData.feedbacks || [];
+              const totalCount = feedbacks.length;
+              const avgRating = totalCount > 0 
+                ? (feedbacks.reduce((acc: number, curr: any) => acc + curr.rating, 0) / totalCount).toFixed(1) 
+                : '0.0';
+              const registeredCount = feedbacks.filter((f: any) => 
+                f.email && adminData.users?.some((u: any) => u.email.toLowerCase() === f.email.toLowerCase())
+              ).length;
+              const guestCount = totalCount - registeredCount;
+
+              return (
+                <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+                  <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4">
+                    <div className="bg-[#00ff88]/10 p-3.5 rounded-full border border-[#00ff88]/20">
+                      <Zap className="text-[#00ff88]" size={22} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">Total Feedbacks</span>
+                      <span className="font-mono text-2xl font-bold text-white block">{totalCount}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4">
+                    <div className="bg-[#ffb800]/10 p-3.5 rounded-full border border-[#ffb800]/20">
+                      <Star className="text-[#ffb800] fill-[#ffb800]" size={22} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">Average Rating</span>
+                      <span className="font-mono text-2xl font-bold text-white block">{avgRating} / 5.0</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4">
+                    <div className="bg-[#00ff88]/10 p-3.5 rounded-full border border-[#00ff88]/20">
+                      <Users className="text-[#00ff88]" size={22} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">Registered Users</span>
+                      <span className="font-mono text-2xl font-bold text-white block">{registeredCount}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4">
+                    <div className="bg-[#6b7fa8]/10 p-3.5 rounded-full border border-[#6b7fa8]/20">
+                      <EyeOff className="text-[#6b7fa8]" size={22} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">Guest Users</span>
+                      <span className="font-mono text-2xl font-bold text-white block">{guestCount}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Feedbacks Listing Table */}
+            <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl overflow-hidden shadow-xl">
+              <div className="p-6 border-b border-[#1e2d4a]/50 flex justify-between items-center bg-[#020812]/20">
+                <h3 className="font-syne font-bold text-sm text-white">Live Feedback Stream</h3>
+                <span className="text-[10px] font-mono text-[#00ff88] bg-[#00ff88]/10 px-2 py-0.5 rounded border border-[#00ff88]/20 animate-pulse uppercase">
+                  Data Stream Active
+                </span>
+              </div>
+
+              {(!adminData.feedbacks || adminData.feedbacks.length === 0) ? (
+                <div className="text-center p-12 font-mono text-xs text-[#6b7fa8]">
+                  No user feedback records recorded in database yet.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-xs font-mono">
+                    <thead>
+                      <tr className="bg-[#020812]/50 border-b border-[#1e2d4a]/50 text-[#6b7fa8] uppercase text-[10px] tracking-wider">
+                        <th className="p-4 pl-6">Sender profile</th>
+                        <th className="p-4">Rating scale</th>
+                        <th className="p-4 w-[40%]">Diagnostic message</th>
+                        <th className="p-4 pr-6 text-right">Submitted date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#1e2d4a]/45">
+                      {adminData.feedbacks.map((f: any) => {
+                        const isRegistered = f.email && adminData.users?.some((u: any) => u.email.toLowerCase() === f.email.toLowerCase());
+
+                        return (
+                          <tr key={f.id} className="hover:bg-white/5 transition-all text-white">
+                            <td className="p-4 pl-6 font-semibold">
+                              {isRegistered ? (
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-1.5 text-white">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-[#00ff88] shrink-0" />
+                                    <span className="truncate">{f.email}</span>
+                                  </div>
+                                  <span className="text-[9px] text-[#00ff88] font-bold font-mono bg-[#00ff88]/10 px-1.5 py-0.5 rounded border border-[#00ff88]/20 block w-fit uppercase">
+                                    Registered Member
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-1.5 text-[#6b7fa8]">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-[#6b7fa8] shrink-0" />
+                                    <span>Guest</span>
+                                  </div>
+                                  <span className="text-[9px] text-[#6b7fa8] font-bold font-mono bg-white/5 px-1.5 py-0.5 rounded border border-white/10 block w-fit uppercase">
+                                    Unauthenticated
+                                  </span>
+                                </div>
+                              )}
+                            </td>
+                            <td className="p-4">
+                              <div className="flex gap-0.5">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    size={12}
+                                    className={star <= f.rating ? 'fill-[#ffb800] text-[#ffb800]' : 'text-[#1e2d4a]'}
+                                  />
+                                ))}
+                              </div>
+                            </td>
+                            <td className="p-4 text-[#8b9fc0] font-sans text-xs leading-relaxed whitespace-pre-wrap py-3.5 break-words">
+                              {f.message}
+                            </td>
+                            <td className="p-4 pr-6 text-right text-[#6b7fa8] font-mono whitespace-nowrap">
+                              {new Date(f.created_at).toLocaleString()}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

@@ -1,6 +1,7 @@
 import { getBlogs, getSettings } from '@/lib/db';
 import { Shield, BookOpen, Star, ArrowRight, Sparkles, Zap } from 'lucide-react';
 import type { Metadata } from 'next';
+import ReviewCountBadge from '@/components/ReviewCountBadge';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +16,25 @@ export async function generateMetadata(): Promise<Metadata> {
     keywords: ['mail check', 'mail fixer', 'mail fix suggestion', 'spf error', 'dkim alignment', 'dmarc record'],
     alternates: {
       canonical: settings?.seo?.canonical_url ? `${settings.seo.canonical_url}/blog` : undefined,
+    },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: 'InboxFixer Deliverability & Email Fixer Blog Hub',
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png']
     }
   };
 }
@@ -64,19 +84,7 @@ export default async function BlogHubPage() {
         
         {/* Banner with 4.9 reviews rating */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-[#0f1729]/80 border border-[#00ff88]/40 rounded-full px-5 py-2.5 shadow-lg animate-pulse mb-4">
-            <Sparkles size={14} className="text-[#00ff88]" />
-            <span className="text-xs font-mono font-semibold text-white">InboxFixer Trust Index:</span>
-            <div className="flex gap-0.5">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} size={11} className="fill-[#ffb800] text-[#ffb800]" />
-              ))}
-            </div>
-            <span className="text-[11px] font-mono text-[#00ff88] font-bold">4.9/5.0 Stars</span>
-            <span className="text-[10px] font-mono text-[#6b7fa8] pl-1 border-l border-[#1e2d4a]">
-              29,621 Real Reviews
-            </span>
-          </div>
+          <ReviewCountBadge />
 
           <h1 className="font-syne font-bold text-4xl md:text-5xl lg:text-6xl text-white leading-tight tracking-tight">
             Email Deliverability & <br/>

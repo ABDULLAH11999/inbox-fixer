@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Syne, IBM_Plex_Mono, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
+import TrackPageView from '@/components/TrackPageView';
 import './globals.css';
 
 const syne = Syne({ 
@@ -30,10 +31,25 @@ export const metadata: Metadata = {
     'domain email health check',
     'check email authentication',
   ].join(', '),
+  metadataBase: new URL('https://inboxfixer.online'),
   openGraph: {
     title: 'InboxFixer — Email Deliverability Checker',
     description: 'Check why your emails go to spam. Free instant diagnosis.',
     type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'InboxFixer Email Health Security Shield',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'InboxFixer — Email Deliverability Checker',
+    description: 'Check why your emails go to spam. Free instant diagnosis.',
+    images: ['/og-image.png'],
   },
 };
 
@@ -41,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark scroll-smooth">
       <body className={`${syne.variable} ${mono.variable} ${inter.variable} font-sans bg-[#0a0f1e] text-white antialiased min-h-screen flex flex-col`}>
+        <TrackPageView />
         {children}
         <Toaster theme="dark" position="bottom-right" />
       </body>

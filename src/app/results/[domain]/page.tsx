@@ -17,7 +17,8 @@ import {
   ChevronDown,
   ChevronUp,
   AlertCircle,
-  Loader2
+  Loader2,
+  Star
 } from 'lucide-react';
 import type { ScanResults, CheckStatus } from '@/types';
 import { toast } from 'sonner';
@@ -202,6 +203,12 @@ export default function ResultsPage() {
   const [scansRemaining, setScansRemaining] = useState<number | null>(null);
   const [userPlan, setUserPlan] = useState<'free' | 'pro' | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [feedbackState, setFeedbackState] = useState<'teaser' | 'modal' | 'submitted' | 'hidden'>('hidden');
+  const [feedbackRating, setFeedbackRating] = useState(5);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(30);
 
   // Progressive scan animation states
   const [currentStep, setCurrentStep] = useState(0);
@@ -234,8 +241,87 @@ export default function ResultsPage() {
     if (apiDone) {
       setCurrentStep(6);
       setLoading(false);
+
+      // Check if feedback widget should be displayed today
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const lastFeedbackDate = localStorage.getItem('inboxfixer_feedback_last_date');
+        if (lastFeedbackDate !== today) {
+          setFeedbackState('teaser');
+          setTimeLeft(30);
+        }
+      } catch (e) {
+        console.warn('Storage check failed:', e);
+      }
     }
   }, [currentStep, apiDone]);
+
+  // Teaser 30s countdown countdown hook
+  useEffect(() => {
+    if (feedbackState !== 'teaser') return;
+    if (timeLeft <= 0) {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem('inboxfixer_feedback_last_date', today);
+      } catch (e) {}
+      setFeedbackState('hidden');
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [feedbackState, timeLeft]);
+
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackMessage.trim()) {
+      toast.error('Feedback message is required.');
+      return;
+    }
+
+    setFeedbackSubmitting(true);
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rating: feedbackRating,
+          message: feedbackMessage,
+          email: userEmail
+        })
+      });
+
+      if (res.ok) {
+        setFeedbackState('submitted');
+        try {
+          const today = new Date().toISOString().split('T')[0];
+          localStorage.setItem('inboxfixer_feedback_last_date', today);
+        } catch (e) {}
+        
+        setTimeout(() => {
+          setFeedbackState('hidden');
+        }, 3000);
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Failed to submit feedback.');
+      }
+    } catch {
+      toast.error('Network error submitting feedback.');
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
+
+  const handleFeedbackDismiss = () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem('inboxfixer_feedback_last_date', today);
+    } catch (e) {}
+    setFeedbackState('hidden');
+  };
 
   useEffect(() => {
     if (!domain) return;
@@ -249,6 +335,9 @@ export default function ResultsPage() {
         if (resMe.ok) {
           const dataMe = await resMe.json();
           setUserPlan(dataMe.profile?.plan as 'free' | 'pro');
+          if (dataMe.user?.email) {
+            setUserEmail(dataMe.user.email);
+          }
         }
       } catch (err) {
         console.warn('Profile fetch error:', err);
@@ -612,6 +701,146 @@ export default function ResultsPage() {
           &copy; {new Date().getFullYear()} InboxFixer. Keeping your domain deliverability safe.
         </div>
       </footer>
+
+      {/* Floating Feedback Widget */}
+      {feedbackState !== 'hidden' && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom duration-300 w-80 sm:w-96 select-none">
+          
+          {feedbackState === 'teaser' && (
+            <div className="bg-[#0f1729]/95 border border-[#00ff88]/30 backdrop-blur-md rounded-2xl shadow-2xl p-4.5 relative overflow-hidden flex items-center justify-between gap-3 group hover:border-[#00ff88]/80 transition-all">
+              
+              {/* Countdown Shifting Progress Bar */}
+              <div 
+                className="absolute top-0 left-0 h-1 bg-gradient-to-r from-[#00ff88] to-[#00ff88]/60 transition-all duration-1000"
+                style={{ width: `${(timeLeft / 30) * 100}%` }}
+              />
+
+              <div className="space-y-1">
+                <h4 className="font-syne font-bold text-sm text-white flex items-center gap-1.5">
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00ff88] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00ff88]"></span>
+                  </span>
+                  Share Scan Feedback
+                </h4>
+                <p className="text-[11px] text-[#6b7fa8] font-mono leading-relaxed">
+                  Help us refine our diagnostics! Quick 5-star check.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setFeedbackState('modal')}
+                  className="bg-[#00ff88] hover:bg-[#00dd77] text-[#0a0f1e] px-3 py-2 rounded-lg font-syne font-bold text-[10px] transition-all cursor-pointer shadow-md"
+                >
+                  Rate Scan
+                </button>
+                <button
+                  onClick={handleFeedbackDismiss}
+                  className="text-[#6b7fa8] hover:text-white transition-colors p-1 cursor-pointer"
+                >
+                  <XCircle size={15} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {feedbackState === 'modal' && (
+            <form 
+              onSubmit={handleFeedbackSubmit}
+              className="bg-[#0f1729]/95 border border-[#1e2d4a] backdrop-blur-md rounded-3xl shadow-2xl p-6 space-y-4 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-[#1e2d4a]" />
+
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <h4 className="font-syne font-bold text-base text-white">How was your check experience?</h4>
+                  <p className="text-[10px] text-[#6b7fa8] font-mono">Your rating is secure and private.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleFeedbackDismiss}
+                  className="text-[#6b7fa8] hover:text-white transition-colors p-1 cursor-pointer"
+                >
+                  <XCircle size={18} />
+                </button>
+              </div>
+
+              {/* Star selector (1-5) */}
+              <div className="space-y-1.5 text-center py-1">
+                <label className="text-[10px] text-[#6b7fa8] font-mono uppercase block">Select Star Rating</label>
+                <div className="flex justify-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setFeedbackRating(star)}
+                      className="p-1 hover:scale-110 active:scale-90 transition-all cursor-pointer"
+                    >
+                      <Star
+                        size={26}
+                        className={`${
+                          star <= feedbackRating 
+                            ? 'fill-[#ffb800] text-[#ffb800]' 
+                            : 'text-[#1e2d4a] hover:text-[#ffb800]'
+                        } transition-colors`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Feedback description text */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-[#6b7fa8] font-mono uppercase block">Feedback Message</label>
+                <textarea
+                  required
+                  rows={3}
+                  value={feedbackMessage}
+                  onChange={(e) => setFeedbackMessage(e.target.value)}
+                  placeholder="Tell us what checks were useful or SPF template issues you fixed..."
+                  className="w-full bg-[#020812]/50 border border-[#1e2d4a] focus:border-[#00ff88] rounded-xl p-3 text-xs text-white placeholder-[#6b7fa8] focus:outline-none transition-all resize-none"
+                />
+              </div>
+
+              {/* Submit / Action Buttons */}
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="submit"
+                  disabled={feedbackSubmitting}
+                  className="flex-1 bg-[#00ff88] hover:bg-[#00dd77] disabled:opacity-50 text-[#0a0f1e] py-2.5 rounded-xl font-syne font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  {feedbackSubmitting ? (
+                    <Loader2 size={13} className="animate-spin" />
+                  ) : (
+                    'Submit Feedback'
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleFeedbackDismiss}
+                  className="bg-[#1e2d4a]/50 hover:bg-[#1e2d4a] border border-[#1e2d4a] text-white px-4 py-2.5 rounded-xl font-syne text-xs transition-all cursor-pointer"
+                >
+                  Skip
+                </button>
+              </div>
+            </form>
+          )}
+
+          {feedbackState === 'submitted' && (
+            <div className="bg-[#0f1729]/95 border border-[#00ff88] backdrop-blur-md rounded-3xl shadow-2xl p-6 text-center space-y-3 relative overflow-hidden">
+              <div className="bg-[#00ff88]/10 p-3 rounded-full border border-[#00ff88]/20 w-fit mx-auto">
+                <CheckCircle className="text-[#00ff88] animate-bounce" size={28} />
+              </div>
+              <h4 className="font-syne font-bold text-sm text-white">Thank You for Your Feedback!</h4>
+              <p className="text-[11px] text-[#6b7fa8] font-mono leading-relaxed max-w-xs mx-auto">
+                Your report has been successfully delivered to the admin dashboard. We appreciate your diagnostic insights!
+              </p>
+            </div>
+          )}
+
+        </div>
+      )}
     </div>
   );
 }
