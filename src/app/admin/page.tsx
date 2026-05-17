@@ -67,6 +67,7 @@ export default function AdminPage() {
   // Stripe/Receiver Config form
   const [stripeMode, setStripeMode] = useState('test');
   const [receiverEmail, setReceiverEmail] = useState('');
+  const [enableOtp, setEnableOtp] = useState(true);
 
   // Plans config form (copy of plans list for editing)
   const [editablePlans, setEditablePlans] = useState<any[]>([]);
@@ -125,6 +126,7 @@ export default function AdminPage() {
           setStripeMode(data.settings.stripe_mode || 'test');
           setReceiverEmail(data.settings.smtp_receiver_email || '');
           setTestEmailAddress(data.settings.smtp_receiver_email || '');
+          setEnableOtp(data.settings.enable_otp !== false);
         }
 
         // Seed plans
@@ -274,7 +276,8 @@ export default function AdminPage() {
         body: JSON.stringify({
           action: 'updateSettings',
           stripe_mode: stripeMode,
-          smtp_receiver_email: receiverEmail
+          smtp_receiver_email: receiverEmail,
+          enable_otp: enableOtp
         })
       });
 
@@ -1228,6 +1231,36 @@ export default function AdminPage() {
                 <p className="text-xs text-[#8b9fc0] leading-relaxed">
                   Verify the Resend API Key in <code className="text-[#00ff88] font-mono">.env.local</code>. Input an email and send a test message to double-check that registrations, OTPs, and monitoring drops arrive.
                 </p>
+
+                {/* OTP Verification Toggle Switch */}
+                <div className="bg-[#020812]/50 border border-[#1e2d4a] rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-syne font-bold text-xs text-white">Enable OTP Verification</h4>
+                      <p className="text-[10px] text-[#6b7fa8] mt-0.5">Require 1-time email OTP verification on next login/signup.</p>
+                    </div>
+                    <button
+                      onClick={() => setEnableOtp(!enableOtp)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
+                        enableOtp ? 'bg-[#00ff88]' : 'bg-slate-700'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          enableOtp ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex justify-end pt-1 border-t border-[#1e2d4a]/45">
+                    <button
+                      onClick={handleSaveSettings}
+                      className="bg-[#00ff88]/10 hover:bg-[#00ff88]/20 border border-[#00ff88]/30 text-[#00ff88] font-syne font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                    >
+                      Save OTP Setting
+                    </button>
+                  </div>
+                </div>
 
                 <div className="space-y-4 text-xs font-mono">
                   <div className="space-y-1.5">

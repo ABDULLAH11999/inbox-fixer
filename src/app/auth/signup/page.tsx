@@ -44,6 +44,15 @@ function SignupContent() {
         throw new Error(data.error || 'Failed to submit registration.');
       }
 
+      if (data.otp_sent === false) {
+        toast.success('Registration Completed!', {
+          description: 'Welcome to InboxFixer! Redirecting to dashboard...',
+        });
+        router.push(redirectTo);
+        router.refresh();
+        return;
+      }
+
       setSuccess(true);
       toast.success('Registration Initiated!', {
         description: 'A 6-digit OTP verification code has been dispatched to your email.',

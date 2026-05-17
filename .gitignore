@@ -22,6 +22,13 @@
 
 # local JSON database states
 /data/
+/data/users.json
+/data/settings.json
+/data/feedbacks.json
+/data/monitoring.json
+/data/scans.json
+/data/payments.json
+/data/visits.json
 *.json.bak
 *.db
 *.sqlite

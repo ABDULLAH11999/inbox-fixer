@@ -116,11 +116,12 @@ export async function POST(req: NextRequest) {
 
     // --- CONFIG CRUD ---
     if (action === 'updateSettings') {
-      const { stripe_mode, smtp_receiver_email } = body;
+      const { stripe_mode, smtp_receiver_email, enable_otp } = body;
       const settings = getSettings();
 
       settings.stripe_mode = stripe_mode || settings.stripe_mode;
       settings.smtp_receiver_email = smtp_receiver_email || settings.smtp_receiver_email;
+      settings.enable_otp = enable_otp !== undefined ? !!enable_otp : settings.enable_otp;
 
       writeSettings(settings);
       return NextResponse.json({ success: true, message: 'System configuration saved successfully.' });
