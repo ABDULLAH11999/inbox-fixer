@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core Static Pages -->
+  <url>
+    <loc>https://inboxfixer.online</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/pricing</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/auth/login</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/auth/signup</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Core Dynamic Blogs -->
+  <url>
+    <loc>https://inboxfixer.online/blog/complete-guide-to-email-deliverability</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/fixing-spf-dkim-dmarc</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/why-business-emails-go-to-spam</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>
