@@ -23,8 +23,9 @@ export async function POST(req: NextRequest) {
     const settings = getSettings();
     const enableOtp = settings.enable_otp !== false;
 
-    // Check if OTP is enabled and user is not verified yet
-    if (enableOtp && !user.otp_verified) {
+    // Check if OTP is enabled and user is not verified yet (only require for standard users, not admin/superadmin)
+    const isAdmin = user.role === 'superadmin' || user.role === 'admin';
+    if (enableOtp && !user.otp_verified && !isAdmin) {
       // Generate 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 mins
