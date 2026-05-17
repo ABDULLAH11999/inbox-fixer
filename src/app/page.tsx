@@ -97,7 +97,7 @@ export default function HomePage() {
               <Shield className="text-[#00ff88]" size={22} />
             </div>
             <span className="font-syne font-bold text-2xl tracking-tight text-white">
-              Mail<span className="text-[#00ff88]">Guard</span>
+              Inbox<span className="text-[#00ff88]">Fixer</span>
             </span>
           </a>
 

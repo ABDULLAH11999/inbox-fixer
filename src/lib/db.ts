@@ -37,8 +37,8 @@ function ensureDB() {
         site_title: 'InboxFixer - Free Email Deliverability & SPF DMARC Spam Checker',
         site_desc: 'Instantly check your SPF, DKIM, DMARC, MX, and blacklist records to stop emails from landing in the spam folder.',
         canonical_url: 'https://inboxfixer.com',
-        header_tags: '<!-- Google Search Rating Schema Included -->',
-        footer_tags: '<!-- InboxFixer Footer Scripts -->'
+        header_tags: '<!-- Google Search Rich Snippets Organization Schema -->\n<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Organization",\n  "name": "InboxFixer",\n  "url": "https://inboxfixer.com",\n  "logo": "https://inboxfixer.com/inboxfixer_profile_logo.png",\n  "sameAs": [\n    "https://twitter.com/inboxfixer",\n    "https://github.com/inboxfixer"\n  ]\n}\n</script>\n<meta name="google-site-verification" content="inboxfixer-verification-placeholder-code" />',
+        footer_tags: '<!-- Custom InboxFixer Console Analytics SDK -->\n<script>\n  console.log("%c🚀 InboxFixer SEO Engine successfully loaded!", "color: #00ff88; font-weight: bold; font-size: 14px;");\n</script>'
       }
     };
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify(defaultSettings, null, 2));
@@ -168,13 +168,21 @@ function ensureDB() {
           { tag: "dkim-selectors", title: "Troubleshooting DKIM Selector Syntax Errors in DNS", query: "selectors", term: "mail check" }
         ][i % 25];
 
+        const validImages = [
+          "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1601597111158-2fceff270190?w=800&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop"
+        ];
+
         return {
           id: `blog-${index}`,
           slug: `expert-guide-${keywords.tag}-${index}`,
           title: keywords.title,
           short_desc: `Professional suggestions on resolving ${keywords.query} configuration blocks for optimized search appearance.`,
           content: `<h2>Resolving ${keywords.title}</h2><p>This is a complete breakdown of configuring ${keywords.query} settings. When sending emails, verification by routers is key to bypassing spam boxes.</p><h3>Key Optimization Steps</h3><ul><li>Ensure your DNS record matches domain expectations.</li><li>Avoid syntax errors like misplaced colons.</li><li>Consistently scan your deliverability logs with InboxFixer.</li></ul><p>Use our tools to verify your configurations instantly.</p>`,
-          image: `https://images.unsplash.com/photo-${1550000000 + index * 100000}?w=800&auto=format&fit=crop`,
+          image: validImages[i % validImages.length],
           tags: [keywords.tag, keywords.term, "deliverability"],
           seo_title: `${keywords.title} | InboxFixer Guide`,
           seo_desc: `Complete breakdown of ${keywords.query} modifications. Repair your email reputation, fix DNS records, and satisfy mail clients.`,

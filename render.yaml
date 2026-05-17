@@ -10,7 +10,4 @@ services:
         value: 20.x
       - key: NEXT_PUBLIC_APP_URL
         value: https://inboxfixer.onrender.com
-      - key: NEXT_PUBLIC_SUPABASE_URL
-        value: https://your_supabase_project.supabase.co
-      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
-        value: your_supabase_anon_key
+

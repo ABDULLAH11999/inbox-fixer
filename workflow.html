@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InboxFixer - Interactive Workflow & Render Host Blueprint</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0a0f1e;
+      --card-bg: rgba(15, 23, 41, 0.85);
+      --border: rgba(30, 45, 74, 0.85);
+      --primary: #00ff88;
+      --primary-glow: rgba(0, 255, 136, 0.15);
+      --secondary: #6b7fa8;
+      --accent: #ffaa00;
+      --danger: #ff4444;
+      --text: #ffffff;
+      --text-dim: #8b9fc0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated background orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .orb-1 {
+      top: -10%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: rgba(0, 255, 136, 0.05);
+    }
+    .orb-2 {
+      bottom: -10%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: rgba(255, 68, 68, 0.03);
+    }
+
+    header {
+      border-b: 1px solid var(--border);
+      background: rgba(10, 15, 30, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 1.5rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-shield {
+      background: #020812;
+      border: 1px solid var(--border);
+      padding: 0.5rem;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+
+    .logo-green {
+      color: var(--primary);
+    }
+
+    .header-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--primary-glow);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      color: var(--primary);
+      padding: 0.35rem 0.75rem;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 3rem;
+    }
+
+    @media (max-width: 1100px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .workflow-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-title svg {
+      color: var(--primary);
+    }
+
+    /* Diagram Nodes */
+    .nodes-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    .flow-connector-line {
+      position: absolute;
+      left: 2rem;
+      top: 1.5rem;
+      bottom: 1.5rem;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--primary), var(--accent), var(--danger));
+      opacity: 0.3;
+      z-index: 1;
+    }
+
+    .node-item {
+      display: flex;
+      gap: 1.5rem;
+      position: relative;
+      z-index: 5;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .node-index {
+      width: 4rem;
+      height: 4rem;
+      background: #020812;
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.15rem;
+      font-family: 'Outfit', sans-serif;
+      color: var(--secondary);
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    .node-card {
+      flex: 1;
+      background: #060a14;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .node-info h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      transition: color 0.3s ease;
+    }
+
+    .node-info p {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    .node-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--primary);
+      background: rgba(0, 255, 136, 0.06);
+      border: 1px solid rgba(0, 255, 136, 0.15);
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+    }
+
+    /* Hover & Active States */
+    .node-item:hover .node-index {
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .node-item:hover .node-card {
+      border-color: rgba(0, 255, 136, 0.3);
+      background: rgba(15, 23, 41, 0.5);
+      transform: translateX(8px);
+    }
+
+    .node-item.active .node-index {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #0a0f1e;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+    }
+
+    .node-item.active .node-card {
+      background: #0f1729;
+      border-color: var(--primary);
+      box-shadow: 0 10px 25px rgba(0, 255, 136, 0.08);
+    }
+
+    .node-item.active .node-info h4 {
+      color: var(--primary);
+    }
+
+    /* Details Panel */
+    .details-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .info-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .info-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+      color: var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-box {
+      background: #020812;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #d1d8e0;
+      overflow-x: auto;
+      line-height: 1.5;
+      margin-top: 1rem;
+    }
+
+    .info-list {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .info-list-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .info-list-item span {
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    /* Render Instructions */
+    .render-guide-card {
+      background: rgba(15, 23, 41, 0.95);
+      border: 1px dashed var(--accent);
+      border-radius: 28px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .render-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      background: rgba(255, 170, 0, 0.1);
+      border: 1px solid rgba(255, 170, 0, 0.3);
+      color: var(--accent);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      width: fit-content;
+    }
+
+    .field-map {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      border-bottom: 1px solid rgba(30, 45, 74, 0.3);
+      padding-bottom: 0.75rem;
+    }
+
+    .field-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .field-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--primary);
+    }
+
+    .field-desc {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      grid-column: 1 / -1;
+      margin-top: 0.35rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--secondary);
+      margin-top: 4rem;
+      background: #060a14;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="#" class="logo-container">
+      <div class="logo-shield">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00ff88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield"><path d="M20 13c0 5-3.5 7.5-7.66 9.7a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.8 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+      </div>
+      <span class="logo-text">Inbox<span class="logo-green">Fixer</span></span>
+    </a>
+    <span class="header-badge">Architecture Spec v1.4</span>
+  </header>
+
+  <!-- Content Grid -->
+  <main>
+    
+    <!-- Left Hand: Interactive Workflow Diagrams -->
+    <div class="workflow-container">
+      <h3 class="section-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-branch"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+        Audit Scan Lifecycle Pipeline
+      </h3>
+      
+      <div class="nodes-flow">
+        <div class="flow-connector-line"></div>
+        
+        <!-- Step 1 -->
+        <div class="node-item active" onclick="showNode(1)" id="node-1">
+          <div class="node-index">01</div>
+          <div class="node-card">
+            <div class="node-info">
+              <h4>Quick Audit Trigger</h4>
+              <p>User inputs custom domain and clicks scan from dashboard card</p>
+            </div>
+            <span class="node-file">dashboard/page.tsx</span>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="node-item" onclick="showNode(2)" id="node-2">
+          <div class="node-index">02</div>
+          <div class="node-card">
+            <div class="node-info">
+              <h4>Authentication & Limits</h4>
+              <p>Fetches cookie session and checks remaining scans quota limits</p>
+            </div>
+            <span class="node-file">lib/rate-limit.ts</span>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="node-item" onclick="showNode(3)" id="node-3">
+          <div class="node-index">03</div>
+          <div class="node-card">
+            <div class="node-info">
+              <h4>Parallel DNS Diagnostic Threads</h4>
+              <p>Probes live DNS servers asynchronously for SPF, DKIM, DMARC, MX, Blacklists, rDNS</p>
+            </div>
+            <span class="node-file">lib/checks/*</span>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="node-item" onclick="showNode(4)" id="node-4">
+          <div class="node-index">04</div>
+          <div class="node-card">
+            <div class="node-info">
+              <h4>Progressive Step Ticker</h4>
+              <p>Frees user anxiety using dynamic intervals (first half 3s, second half 5s)</p>
+            </div>
+            <span class="node-file">results/[domain]/page.tsx</span>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="node-item" onclick="showNode(5)" id="node-5">
+          <div class="node-index">05</div>
+          <div class="node-card">
+            <div class="node-info">
+              <h4>AI Explanation Engine</h4>
+              <p>Generates a natural language summary of issues using Llama-70B/Gemini Pro</p>
+            </div>
+            <span class="node-file">lib/ai-explainer.ts</span>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="node-item" onclick="showNode(6)" id="node-6">
+          <div class="node-index">06</div>
+          <div class="node-card">
+            <div class="node-info">
+              <h4>Record Archiving & Completion</h4>
+              <p>Stores audit stats to database & unlocks report UI instantly</p>
+            </div>
+            <span class="node-file">lib/db.ts</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Hand: Details panel & Render blueprint -->
+    <div class="details-panel">
+      
+      <!-- Interactive Explanation Panel -->
+      <div class="info-card" id="details-box">
+        <!-- Rendered dynamically by script -->
+      </div>
+
+      <!-- Render Host Blueprint Card -->
+      <div class="render-guide-card">
+        <div class="render-badge">Render Cloud Hosting Config</div>
+        <h3 class="section-title" style="margin-top: 1rem; margin-bottom: 0.5rem;">Render Deployment Blueprint</h3>
+        <p style="font-size: 0.85rem; color: var(--text-dim); line-height: 1.5;">
+          You requested setup parameters to deploy this Next.js workspace successfully on Render. Use the following config map:
+        </p>
+
+        <div class="field-map">
+          
+          <div class="field-row">
+            <div class="field-key">Root Directory</div>
+            <div class="field-val" style="color: var(--accent);">[Leave Blank]</div>
+            <div class="field-desc">
+              <strong>CRITICAL WARNING:</strong> Keep this input completely empty. Do NOT type <code>src</code>. The Next.js <code>package.json</code> lives in the root directory. Setting it to <code>src</code> will cause build crashes!
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-key">Build Command</div>
+            <div class="field-val">npm install && npm run build</div>
+            <div class="field-desc">Installs project node_modules and executes Next.js production builds.</div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-key">Start Command</div>
+            <div class="field-val">npm run start</div>
+            <div class="field-desc">Starts the compiled production Next.js server node.</div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-key">Environment Variables</div>
+            <div class="field-val" style="color: var(--accent);">.env.local keys</div>
+            <div class="field-desc">Copy your <code>GROQ_API_KEY</code>, <code>GEMINI_API_KEY</code>, and <code>NEXT_PUBLIC_APP_URL</code> into Render's Environment Variable section.</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    &copy; 2026 InboxFixer. Keeping you out of the spam filter. Blueprinted with elite precision.
+  </footer>
+
+  <!-- Node Interactions Script -->
+  <script>
+    const nodeDetails = {
+      1: {
+        title: "01. Quick Audit Input Trigger",
+        file: "src/app/dashboard/page.tsx",
+        description: "The workflow begins when an authenticated or guest user inputs a domain and clicks 'Scan'. The domain is cleaned of protocols (http/https) and sub-pages, before redirecting the router:",
+        list: [
+          "<span>Router Redirection:</span> Renders <code>/results/[domain]</code> dynamically.",
+          "<span>String Cleaning:</span> Strips trailing slashes, www prefixes, and hashes so only the pure domain is scanned."
+        ],
+        code: `const handleScanSubmit = (e) => {\n  e.preventDefault();\n  const clean = newDomain\n    .toLowerCase()\n    .replace(/^https?:\\/\\//, '')\n    .replace(/^www\\./, '')\n    .split('/')[0];\n  router.push(\`/results/\${clean}\`);\n};`
+      },
+      2: {
+        title: "02. Authentication & Limit Controls",
+        file: "src/lib/rate-limit.ts & src/lib/auth.ts",
+        description: "The scan API receives the domain POST request and first verifies if the requester is within daily limits to prevent spam abuse:",
+        list: [
+          "<span>Session Verification:</span> Parses the local JSON JWT session cookie.",
+          "<span>Rate Limits Check:</span> Enforces 3 scans/day limit for guests, 10/day for registered accounts, and unlimited scans for Pro subscribers."
+        ],
+        code: `// Enforces rate-limits based on plan\nconst { allowed, remaining } = await checkRateLimit(identifier, plan);\nif (!allowed) {\n  return NextResponse.json({ error: 'Daily scan limit reached' }, { status: 429 });\n}`
+      },
+      3: {
+        title: "03. Parallel DNS Diagnostics",
+        file: "src/lib/checks/ & src/app/api/scan/route.ts",
+        description: "Runs 6 major deliverability verification modules in parallel for ultra-high performance:",
+        list: [
+          "<span>checkSPF():</span> Validates Google/Microsoft record flags.",
+          "<span>checkDKIM():</span> Queries public RSA key selectors.",
+          "<span>checkDMARC():</span> Audits quarantine/reject alignment.",
+          "<span>checkMX():</span> Detects MX hosts and active provider networks.",
+          "<span>checkBlacklist():</span> Resolves IP against 9 major databases.",
+          "<span>checkRDNS():</span> Confirms PTR record matches."
+        ],
+        code: `const [spf, dkim, dmarc, mx, blacklist, rdns] = await Promise.all([\n  checkSPF(cleanDomain),\n  checkDKIM(cleanDomain),\n  checkDMARC(cleanDomain),\n  checkMX(cleanDomain),\n  checkBlacklist(cleanDomain),\n  checkRDNS(cleanDomain)\n]);`
+      },
+      4: {
+        title: "04. Progressive Step Pacing",
+        file: "src/app/results/[domain]/page.tsx",
+        description: "Our newly engineered UX ticks off pending items sequentially so the user knows progress: first half takes 3s per step, second half takes 5s per step. If the API returns early, it completes instantly:",
+        list: [
+          "<span>Paced Ticks:</span> Steps 1, 2, 3 progress with a 3s interval; Steps 4, 5, 6 progress with a 5s interval.",
+          "<span>Instant Skip:</span> If the API finishes early, it instantly skips the delay, ticks all, and loads the report.",
+          "<span>State Control:</span> Tracks <code>currentStep</code> from 0 to 6 with live loaders."
+        ],
+        code: `const intervalTime = currentStep < 3 ? 3000 : 5000;\nconst timeout = setTimeout(() => {\n  setCurrentStep(prev => prev < 6 ? prev + 1 : prev);\n}, intervalTime);\n\nuseEffect(() => {\n  if (apiDone) { setCurrentStep(6); setLoading(false); }\n}, [apiDone]);`
+      },
+      5: {
+        title: "05. AI Explanation Engine",
+        file: "src/lib/ai-explainer.ts & src/lib/db.ts",
+        description: "To avoid confusing standard users with raw records, we compile raw DNS outputs and send them to the Llama-70B (via Groq) or Gemini Pro API to write a simplified overview:",
+        list: [
+          "<span>Executive Insight:</span> Explains issues in clear, plain English.",
+          "<span>Actionable Advice:</span> Outlines what immediate steps to take to lift deliverability scores."
+        ],
+        code: `export async function generateScanSummary(domain, results) {\n  const prompt = \`Audit results for \${domain}: \${JSON.stringify(results)}...\`;\n  const chat = await model.generateContent(prompt);\n  return chat.response.text();\n}`
+      },
+      6: {
+        title: "06. Archiving & Complete",
+        file: "src/lib/db.ts & src/app/api/scan/route.ts",
+        description: "If the user is logged in, their diagnostic records are cached in the local database to construct dashboard panels later:",
+        list: [
+          "<span>Database Seeding:</span> Saves scan scores, spf, dkim, and mx statuses to <code>data/scans.json</code>.",
+          "<span>Clean State:</span> Clears the loading overlay and renders the final gauge scores beautifully."
+        ],
+        code: `scans.push({\n  id: 'scn_' + Math.random().toString(36).substring(2, 11),\n  user_id: user.id,\n  domain,\n  score,\n  spf_status: spf.status,\n  created_at: new Date().toISOString()\n});\nwriteScans(scans);`
+      }
+    };
+
+    function showNode(id) {
+      // Remove active class from all node items
+      document.querySelectorAll('.node-item').forEach(el => el.classList.remove('active'));
+      
+      // Add active class to clicked node
+      document.getElementById('node-' + id).classList.add('active');
+
+      const data = nodeDetails[id];
+      const html = `
+        <div class="info-title">
+          <span>${data.title}</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-dim);">${data.file}</span>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.6;">${data.description}</p>
+        
+        <div class="info-list">
+          ${data.list.map(item => `
+            <div class="info-list-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 3px; flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+              <div>${item}</div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="code-box">${data.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+      `;
+      
+      document.getElementById('details-box').innerHTML = html;
+    }
+
+    // Load initial node
+    showNode(1);
+  </script>
+</body>
+</html>

@@ -73,7 +73,7 @@ export default function PricingPage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <a href="/" className="font-syne font-bold text-xl tracking-tight text-white flex items-center gap-2">
             <Shield className="text-[#00ff88]" size={18} />
-            <span>Mail<span className="text-[#00ff88]">Guard</span></span>
+            <span>Inbox<span className="text-[#00ff88]">Fixer</span></span>
           </a>
           <div className="flex gap-4 items-center">
             <a href="/" className="text-xs text-[#6b7fa8] hover:text-white transition-colors font-semibold">

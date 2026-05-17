@@ -16,7 +16,8 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import type { ScanResults, CheckStatus } from '@/types';
 import { toast } from 'sonner';
@@ -202,6 +203,37 @@ export default function ResultsPage() {
   const [userPlan, setUserPlan] = useState<'free' | 'pro' | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
 
+  // Progressive scan animation states
+  const [currentStep, setCurrentStep] = useState(0);
+  const [apiDone, setApiDone] = useState(false);
+
+  // Step-by-step progress animation with dynamic intervals (first half: 3s, next half: 5s)
+  useEffect(() => {
+    if (!loading || apiDone) return;
+    if (currentStep >= 6) return;
+
+    const intervalTime = currentStep < 3 ? 3000 : 5000;
+
+    const timeout = setTimeout(() => {
+      setCurrentStep((prev) => {
+        if (prev < 6) {
+          return prev + 1;
+        }
+        return prev;
+      });
+    }, intervalTime);
+
+    return () => clearTimeout(timeout);
+  }, [currentStep, loading, apiDone]);
+
+  // Transition once both the progress animation and API response are done, or instantly if API finishes early
+  useEffect(() => {
+    if (apiDone) {
+      setCurrentStep(6);
+      setLoading(false);
+    }
+  }, [currentStep, apiDone]);
+
   useEffect(() => {
     async function checkPlanAndScan() {
       // Check auth plan first
@@ -227,15 +259,16 @@ export default function ResultsPage() {
 
         if (!res.ok) {
           setError(data.message || data.error || 'Scan query execution failed.');
+          setLoading(false);
           return;
         }
 
         setResults(data);
         setAiSummary(data.aiSummary || '');
         setScansRemaining(data.scansRemaining);
+        setApiDone(true);
       } catch {
         setError('Failed to securely contact diagnostic server. Verify your internet connection.');
-      } finally {
         setLoading(false);
       }
     }
@@ -367,7 +400,7 @@ export default function ResultsPage() {
             Auditing {domain} DNS configuration...
           </p>
 
-          <div className="space-y-3 text-left max-w-sm mx-auto p-5 bg-[#0f1729] border border-[#1e2d4a] rounded-2xl">
+          <div className="space-y-4 text-left max-w-sm mx-auto p-6 bg-[#0f1729]/90 border border-[#1e2d4a]/80 rounded-2xl shadow-xl">
             {[
               'Verifying SPF record lookup & configuration...',
               'Probing common DKIM public selector records...',
@@ -375,16 +408,32 @@ export default function ResultsPage() {
               'Resolving MX nodes & detecting provider mail servers...',
               'Querying IP against 9 major public spam databases...',
               'Confirming reverse DNS hostname (rDNS) pointers...'
-            ].map((msg, i) => (
-              <div 
-                key={i} 
-                className="flex items-center gap-3 text-xs text-[#8b9fc0] font-mono animate-[scan-pulse_2s_infinite]"
-                style={{ animationDelay: `${i * 0.3}s` }}
-              >
-                <span className="text-[#00ff88] font-bold">✓</span> 
-                <span>{msg}</span>
-              </div>
-            ))}
+            ].map((msg, i) => {
+              const isCompleted = i < currentStep;
+              const isActive = i === currentStep;
+              
+              return (
+                <div 
+                  key={i} 
+                  className={`flex items-center gap-3.5 text-xs font-mono transition-all duration-300 ${
+                    isActive 
+                      ? 'text-white font-semibold scale-[1.01]' 
+                      : isCompleted 
+                        ? 'text-[#8b9fc0]' 
+                        : 'text-[#6b7fa8]/40'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <span className="text-[#00ff88] font-bold text-sm select-none">✓</span>
+                  ) : isActive ? (
+                    <Loader2 size={13} className="text-[#00ff88] animate-spin shrink-0" />
+                  ) : (
+                    <span className="text-[#ff4444]/60 font-bold text-sm select-none">✗</span>
+                  )}
+                  <span className="leading-relaxed">{msg}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -430,7 +479,7 @@ export default function ResultsPage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <a href="/" className="font-syne font-bold text-xl tracking-tight text-white flex items-center gap-2">
             <Shield className="text-[#00ff88]" size={18} />
-            <span>Mail<span className="text-[#00ff88]">Guard</span></span>
+            <span>Inbox<span className="text-[#00ff88]">Fixer</span></span>
           </a>
           <a 
             href="/" 
