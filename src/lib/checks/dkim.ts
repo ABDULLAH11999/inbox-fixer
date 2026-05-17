@@ -1,4 +1,4 @@
-import dns from 'dns/promises';
+import dns from '@/lib/dns-helper';
 import type { CheckResult } from '@/types';
 
 // Common DKIM selectors used by major email providers

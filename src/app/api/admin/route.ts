@@ -122,23 +122,23 @@ export async function POST(req: NextRequest) {
     if (action === 'sendTestEmail') {
       const { testRecipient } = body;
       if (!testRecipient) {
-        return NextResponse.json({ error: 'Recipient email is required for the SMTP test check.' }, { status: 400 });
+        return NextResponse.json({ error: 'Recipient email is required for the Resend test check.' }, { status: 400 });
       }
 
       await sendEmail({
         to: testRecipient,
-        subject: '🚀 InboxFixer SMTP Transporter Connection Successful!',
+        subject: '🚀 InboxFixer Resend API Connection Successful!',
         html: `
           <div style="font-family: sans-serif; padding: 25px; background: #0a0f1e; color: #ffffff; max-width: 500px; margin: 0 auto; border-radius: 12px; border: 1px solid #00ff88;">
-            <h2 style="color: #00ff88; font-size: 22px; text-align: center;">Transporter Connection Active!</h2>
+            <h2 style="color: #00ff88; font-size: 22px; text-align: center;">Resend API Connection Active!</h2>
             <p>Hello,</p>
             <p>This is an automated delivery test email sent from the **InboxFixer Admin Control Panel**.</p>
-            <p>If you are reading this email, it means your SMTP server host, credentials, ports, and senders are **100% correctly configured** and fully operational.</p>
+            <p>If you are reading this email, it means your Resend API Key is **100% correctly configured** and fully operational on your Render hosting environment.</p>
           </div>
         `
       });
 
-      return NextResponse.json({ success: true, message: `Test email successfully fired to ${testRecipient}.` });
+      return NextResponse.json({ success: true, message: `Test email successfully fired to ${testRecipient} via Resend.` });
     }
 
     // --- GLOBAL SEO CRUD ---

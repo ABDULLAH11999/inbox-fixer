@@ -7,26 +7,7 @@ import { checkMX } from '@/lib/checks/mx';
 import { checkBlacklist } from '@/lib/checks/blacklist';
 import { checkRDNS } from '@/lib/checks/rdns';
 import { calculateScore } from '@/lib/scorer';
-import nodemailer from 'nodemailer';
-
-// Initialize SMTP transporter with environment variables
-const smtpHost = process.env.SMTP_HOST || '';
-const smtpPort = parseInt(process.env.SMTP_PORT || '587');
-const smtpUser = process.env.SMTP_USER || '';
-const smtpPass = process.env.SMTP_PASSWORD || '';
-const smtpFrom = process.env.SMTP_FROM || 'InboxFixer Alerts <alerts@inboxfixer.com>';
-
-const transporter = smtpHost && smtpUser && smtpPass
-  ? nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpPort === 465, // true for 465, false for 587 or 25
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    })
-  : null;
+import { sendEmail } from '@/lib/mail';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -121,10 +102,9 @@ export async function GET(req: NextRequest) {
         // Trigger alert email if the score dropped and email alerts are active
         const scoreDropped = previousScore !== null && score < previousScore;
         
-        if (scoreDropped && item.alert_on_change && userEmail && transporter) {
+        if (scoreDropped && item.alert_on_change && userEmail) {
           try {
-            await transporter.sendMail({
-              from: smtpFrom,
+            await sendEmail({
               to: userEmail,
               subject: `⚠️ URGENT: Deliverability Score Dropped for ${domain}`,
               html: `
@@ -144,9 +124,9 @@ export async function GET(req: NextRequest) {
                 </div>
               `,
             });
-            console.log(`Alert SMTP email sent to ${userEmail} for domain ${domain}.`);
+            console.log(`Alert Resend email sent to ${userEmail} for domain ${domain}.`);
           } catch (mailErr) {
-            console.error(`Failed to send alert SMTP email to ${userEmail}:`, mailErr);
+            console.error(`Failed to send alert Resend email to ${userEmail}:`, mailErr);
           }
         }
 

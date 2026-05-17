@@ -287,7 +287,7 @@ export default function AdminPage() {
     }
   };
 
-  // 9. Fire SMTP connection test
+  // 9. Fire Resend connection test
   const handleSendTestEmail = async () => {
     if (!testEmailAddress) {
       toast.warning('Please enter a target recipient email.');
@@ -307,12 +307,12 @@ export default function AdminPage() {
 
       const data = await res.json();
       if (res.ok) {
-        toast.success('SMTP Success!', { description: data.message });
+        toast.success('Resend Success!', { description: data.message });
       } else {
-        toast.error('SMTP Connection Failed', { description: data.error });
+        toast.error('Resend Connection Failed', { description: data.error });
       }
     } catch {
-      toast.error('SMTP Timeout');
+      toast.error('Resend Timeout');
     } finally {
       setSmtpLoading(false);
     }
@@ -739,8 +739,8 @@ export default function AdminPage() {
                   <span className="text-[#00ff88] font-bold">4.9/5.0 Stars</span>
                 </div>
                 <div className="bg-[#020812]/50 p-4 rounded-2xl border border-[#1e2d4a]/50 flex justify-between items-center">
-                  <span className="text-[#6b7fa8]">SMTP Connection:</span>
-                  <span className="text-[#00ff88] font-bold">ACTIVE Transporter</span>
+                  <span className="text-[#6b7fa8]">Resend Connection:</span>
+                  <span className="text-[#00ff88] font-bold">Active API Client</span>
                 </div>
                 <div className="bg-[#020812]/50 p-4 rounded-2xl border border-[#1e2d4a]/50 flex justify-between items-center">
                   <span className="text-[#6b7fa8]">Blogs Seed:</span>
@@ -1073,15 +1073,15 @@ export default function AdminPage() {
                 </button>
               </div>
 
-              {/* SMTP Connection Checker */}
+              {/* Resend Connection Checker */}
               <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl space-y-6">
                 <h3 className="font-syne font-bold text-sm text-white flex items-center gap-1.5">
                   <Mail size={16} className="text-[#00ff88]" />
-                  SMTP Connection Checker (Nodemailer)
+                  Resend Connection Checker (REST API)
                 </h3>
 
                 <p className="text-xs text-[#8b9fc0] leading-relaxed">
-                  Verify SMTP keys in <code className="text-[#00ff88] font-mono">.env.local</code>. Input an email and send a test message to double-check that registrations, OTPs, and monitoring drops arrive.
+                  Verify the Resend API Key in <code className="text-[#00ff88] font-mono">.env.local</code>. Input an email and send a test message to double-check that registrations, OTPs, and monitoring drops arrive.
                 </p>
 
                 <div className="space-y-4 text-xs font-mono">
@@ -1105,12 +1105,12 @@ export default function AdminPage() {
                   {smtpLoading ? (
                     <>
                       <Loader2 size={14} className="animate-spin" />
-                      Relaying Test...
+                      Firing Test API Call...
                     </>
                   ) : (
                     <>
                       <Send size={14} />
-                      Fire Connection Test
+                      Fire API Connection Test
                     </>
                   )}
                 </button>

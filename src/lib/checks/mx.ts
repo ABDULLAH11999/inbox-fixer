@@ -1,4 +1,4 @@
-import dns from 'dns/promises';
+import dns from '@/lib/dns-helper';
 import type { CheckResult } from '@/types';
 
 export async function checkMX(domain: string): Promise<CheckResult> {
