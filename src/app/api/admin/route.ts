@@ -9,6 +9,7 @@ import {
   getBlogs, writeBlogs
 } from '@/lib/db';
 import { sendEmail } from '@/lib/mail';
+import { updateStaticSitemap } from '@/lib/sitemap';
 
 export async function GET(req: NextRequest) {
   try {
@@ -197,6 +198,7 @@ export async function POST(req: NextRequest) {
 
       blogs.push(newBlog);
       writeBlogs(blogs);
+      updateStaticSitemap();
 
       return NextResponse.json({ success: true, message: 'Blog post created successfully.', blog: newBlog });
     }
@@ -242,6 +244,7 @@ export async function POST(req: NextRequest) {
       blogs[idx].seo_keywords = seo_keywords || (Array.isArray(tags) ? tags.join(', ') : tags || '');
 
       writeBlogs(blogs);
+      updateStaticSitemap();
       return NextResponse.json({ success: true, message: 'Blog post updated successfully.', blog: blogs[idx] });
     }
 
@@ -260,6 +263,7 @@ export async function POST(req: NextRequest) {
       }
 
       writeBlogs(filtered);
+      updateStaticSitemap();
       return NextResponse.json({ success: true, message: 'Blog post deleted successfully.' });
     }
 

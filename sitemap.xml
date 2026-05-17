@@ -32,21 +32,183 @@
     <priority>0.5</priority>
   </url>
 
-  <!-- Core Dynamic Blogs -->
+  <!-- Dynamic Blog Posts -->
   <url>
-    <loc>https://inboxfixer.online/blog/complete-guide-to-email-deliverability</loc>
+    <loc>https://inboxfixer.online/blog/how-to-fix-spf-syntax-errors-google-workspace</loc>
     <lastmod>2026-05-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/fixing-spf-dkim-dmarc</loc>
+    <loc>https://inboxfixer.online/blog/resolving-dkim-signature-alignment-failures</loc>
     <lastmod>2026-05-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/why-business-emails-go-to-spam</loc>
+    <loc>https://inboxfixer.online/blog/dmarc-alignment-preventing-phishing-attacks</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/ip-blacklist-removal-spamhaus-barracuda</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/gmail-yahoo-mandatory-bulk-sender-guidelines</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-mx-records-6</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-cold-email-7</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-smtp-errors-8</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-reverse-dns-9</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-list-hygiene-10</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-double-optin-11</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-dns-propagation-12</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-bimi-branding-13</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-shared-ip-14</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-transactional-mail-15</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-reputation-recovery-16</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-tls-encryption-17</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-yahoo-complaints-18</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-smtp-ports-19</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-dnsbl-check-20</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-sendgrid-auth-21</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-mailchimp-dkim-22</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-activecampaign-fix-23</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-google-postmaster-24</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-rfc-compliance-25</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-spam-trigger-words-26</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-outlook-junk-27</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-unsubscribed-header-28</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-cold-mailing-list-29</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/expert-guide-dkim-selectors-30</loc>
     <lastmod>2026-05-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
