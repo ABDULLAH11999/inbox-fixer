@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad-18" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#081c15" />
+      <stop offset="100%" stop-color="#0a0f1e" />
+    </linearGradient>
+    <pattern id="grid-18" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#2d6a4f" stroke-width="0.5" opacity="0.07" />
+    </pattern>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#grad-18)" />
+  
+  <!-- Tech Grid Overlay -->
+  <rect width="800" height="450" fill="url(#grid-18)" />
+  
+  <!-- Neon decorative orbs -->
+  <circle cx="150" cy="120" r="100" fill="#2d6a4f" opacity="0.04" filter="blur(40px)" />
+  <circle cx="650" cy="320" r="120" fill="#2d6a4f" opacity="0.03" filter="blur(50px)" />
+
+  <!-- Abstract digital diagnostic circle -->
+  <circle cx="400" cy="225" r="120" fill="none" stroke="#2d6a4f" stroke-width="1.5" stroke-dasharray="10, 8" opacity="0.15" />
+  <circle cx="400" cy="225" r="140" fill="none" stroke="#2d6a4f" stroke-width="0.5" opacity="0.08" />
+
+  <!-- Stylized corner diagnostic brackets -->
+  <path d="M 40 60 L 40 40 L 60 40" fill="none" stroke="#2d6a4f" stroke-width="1.5" opacity="0.3" />
+  <path d="M 760 60 L 760 40 L 740 40" fill="none" stroke="#2d6a4f" stroke-width="1.5" opacity="0.3" />
+  <path d="M 40 390 L 40 410 L 60 410" fill="none" stroke="#2d6a4f" stroke-width="1.5" opacity="0.3" />
+  <path d="M 760 390 L 760 410 L 740 410" fill="none" stroke="#2d6a4f" stroke-width="1.5" opacity="0.3" />
+
+  <!-- Center Icon Wrapper -->
+  <g transform="translate(372, 197) scale(2.4)">
+    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-1.5-1.5" fill="none" stroke="#2d6a4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Typography metadata overlay -->
+  <text x="400" y="380" font-family="'Syne', 'Inter', sans-serif" font-size="16" font-weight="bold" fill="#ffffff" opacity="0.8" text-anchor="middle" letter-spacing="4">
+    INBOXFIXER DIAGNOSTICS
+  </text>
+  
+  <text x="400" y="405" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#2d6a4f" opacity="0.6" text-anchor="middle" letter-spacing="2">
+    INDEXING NODE AUDIT // POST-0018
+  </text>
+
+  <!-- Technical grade subline -->
+  <line x1="300" y1="360" x2="500" y2="360" stroke="#2d6a4f" stroke-width="1" opacity="0.2" />
+</svg>

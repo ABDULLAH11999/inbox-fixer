@@ -15,19 +15,56 @@ export async function POST(req: NextRequest) {
     const isTestMode = settings.stripe_mode === 'test';
 
     // Select correct price ID: use specific test price if defined, otherwise global
-    const priceId = isTestMode
+    let priceId = isTestMode
       ? (process.env.STRIPE_TEST_PRO_PRICE_ID || process.env.STRIPE_PRO_PRICE_ID)
       : process.env.STRIPE_PRO_PRICE_ID;
 
-    if (!priceId || priceId.includes('your_stripe_price_id')) {
-      return NextResponse.json({ 
-        error: 'Stripe is not fully configured yet.',
-        message: 'Stripe Price ID is missing from environment variables.'
-      }, { status: 500 });
+    const stripe = getStripeInstance();
+
+    if (isTestMode && (!priceId || priceId.includes('your_stripe_price_id'))) {
+      try {
+        console.log('Generating dynamic Stripe Test Product & Price on-the-fly...');
+        const products = await stripe.products.list({ limit: 100 });
+        let product = products.data.find(p => p.name === 'InboxFixer Pro');
+        
+        if (!product) {
+          product = await stripe.products.create({
+            name: 'InboxFixer Pro',
+            description: 'InboxFixer premium email deliverability suite.',
+          });
+        }
+
+        const prices = await stripe.prices.list({ product: product.id, limit: 100 });
+        let price = prices.data.find(p => p.unit_amount === 900 && p.recurring?.interval === 'month');
+
+        if (!price) {
+          price = await stripe.prices.create({
+            product: product.id,
+            unit_amount: 900,
+            currency: 'usd',
+            recurring: { interval: 'month' },
+          });
+        }
+
+        priceId = price.id;
+        console.log('Dynamic Stripe Test Price created:', priceId);
+      } catch (err: any) {
+        console.error('Failed to create test product/price dynamically:', err);
+        return NextResponse.json({ 
+          error: 'Stripe Test Mode initialization error',
+          message: err.message || 'Stripe failed to initialize dynamic pricing.'
+        }, { status: 500 });
+      }
+    } else {
+      if (!priceId || priceId.includes('your_stripe_price_id')) {
+        return NextResponse.json({ 
+          error: 'Stripe is not fully configured yet.',
+          message: 'Stripe Price ID is missing from environment variables.'
+        }, { status: 500 });
+      }
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const stripe = getStripeInstance();
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',

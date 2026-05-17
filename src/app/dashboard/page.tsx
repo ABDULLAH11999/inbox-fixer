@@ -28,6 +28,83 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Subscription Billing States
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [cardInput, setCardInput] = useState('');
+  const [cardBrand, setCardBrand] = useState('visa');
+  const [submittingCard, setSubmittingCard] = useState(false);
+
+  const handleLinkOrChangeCard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanDigits = cardInput.replace(/\s/g, '');
+    if (cleanDigits.length !== 16) {
+      toast.error('Please enter a valid 16-digit card number.');
+      return;
+    }
+
+    setSubmittingCard(true);
+    try {
+      const res = await fetch('/api/stripe/billing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardLast4: cleanDigits.slice(-4),
+          cardBrand: cardBrand
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update billing card.');
+      }
+
+      setProfile({
+        ...profile,
+        plan: data.profile.plan,
+        card_last4: data.profile.card_last4,
+        card_brand: data.profile.card_brand
+      });
+
+      setShowCardModal(false);
+      setCardInput('');
+      toast.success(profile?.card_last4 ? 'Card details updated successfully!' : 'Card linked & Pro Subscription Activated!');
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message || 'Billing linking failed.');
+    } finally {
+      setSubmittingCard(false);
+    }
+  };
+
+  const handleRemoveCard = async () => {
+    if (!confirm('Are you sure you want to remove your card? Removing your card will immediately cancel your Pro subscription and downgrade you to the Free plan.')) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/stripe/billing', {
+        method: 'DELETE'
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to remove card.');
+      }
+
+      setProfile({
+        ...profile,
+        plan: data.profile.plan,
+        card_last4: data.profile.card_last4,
+        card_brand: data.profile.card_brand
+      });
+
+      toast.success('Payment card removed. Subscription downgraded to Free.');
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message || 'Billing removal failed.');
+    }
+  };
+
   useEffect(() => {
     async function initDashboard() {
       try {
@@ -221,6 +298,85 @@ function DashboardContent() {
           </div>
         </div>
 
+        {/* Billing & Subscription Settings */}
+        <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/70 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#00ff88]/5 rounded-full filter blur-3xl pointer-events-none" />
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="space-y-2">
+              <h3 className="font-syne font-bold text-lg text-white flex items-center gap-2">
+                <span className="p-1.5 bg-[#00ff88]/10 text-[#00ff88] rounded-lg">
+                  <Shield size={16} />
+                </span>
+                Subscription Billing Manager
+              </h3>
+              <p className="text-xs text-[#6b7fa8] max-w-xl">
+                Securely manage payment methods linked with your Pro account. If you remove your payment card, your subscription benefits will immediately pause until a card is linked.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
+              {profile?.card_last4 ? (
+                <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] rounded-2xl p-4 w-full sm:w-64 shadow-lg flex flex-col justify-between h-32 relative overflow-hidden font-mono text-white text-xs">
+                  <div className="flex justify-between items-start">
+                    <span className="font-bold text-[10px] tracking-widest text-[#00ff88] uppercase">SECURE PASS</span>
+                    <span className="text-[10px] text-[#6b7fa8] uppercase font-bold">{profile.card_brand || 'VISA'}</span>
+                  </div>
+                  <div className="text-sm font-semibold tracking-widest my-2">
+                    ••••  ••••  ••••  {profile.card_last4}
+                  </div>
+                  <div className="flex justify-between items-center text-[9px] text-[#6b7fa8]">
+                    <div>
+                      <p className="text-[8px] text-[#475569] uppercase font-semibold">Holder</p>
+                      <p className="font-semibold text-white text-[10px]">PRO MEMBER</p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] text-[#475569] uppercase font-semibold">Status</p>
+                      <p className="font-bold text-[#00ff88]">ACTIVE</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-[#020812]/50 border border-dashed border-[#1e2d4a] rounded-2xl p-4 flex flex-col items-center justify-center text-center w-full sm:w-64 h-32">
+                  <span className="text-xs text-[#6b7fa8] mb-2 font-mono">No payment card linked</span>
+                  <span className="text-[10px] text-[#6b7fa8]/60 leading-relaxed font-mono">Pro services require a secure link</span>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2.5 justify-center w-full sm:w-auto">
+                {profile?.card_last4 ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        setCardBrand(profile.card_brand || 'visa');
+                        setShowCardModal(true);
+                      }}
+                      className="bg-[#00ff88]/10 hover:bg-[#00ff88]/20 border border-[#00ff88]/30 text-[#00ff88] px-4 py-2.5 rounded-xl text-xs font-syne font-bold transition-all cursor-pointer text-center"
+                    >
+                      Change Card
+                    </button>
+                    <button
+                      onClick={handleRemoveCard}
+                      className="bg-[#ff4444]/10 hover:bg-[#ff4444]/20 border border-[#ff4444]/30 text-[#ff4444] px-4 py-2.5 rounded-xl text-xs font-syne font-bold transition-all cursor-pointer text-center"
+                    >
+                      Remove Card
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setCardBrand('visa');
+                      setShowCardModal(true);
+                    }}
+                    className="bg-[#00ff88] text-[#0a0f1e] hover:bg-[#00dd77] px-5 py-2.5 rounded-xl text-xs font-syne font-bold transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#00ff88]/10 text-center"
+                  >
+                    Link Payment Card
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Monitoring & Alerts Feature Row */}
         <div className="grid md:grid-cols-3 gap-6">
           {/* Daily Monitoring Module */}
@@ -376,6 +532,80 @@ function DashboardContent() {
           &copy; {new Date().getFullYear()} InboxFixer. Keeping you out of the spam filter.
         </div>
       </footer>
+
+      {/* Link/Change Card Modal */}
+      {showCardModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#0f1729] border border-[#1e2d4a] rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-6 relative overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ff88]/5 rounded-full filter blur-2xl pointer-events-none" />
+            <div className="space-y-2">
+              <h3 className="font-syne font-bold text-lg text-white">
+                {profile?.card_last4 ? 'Change Payment Card' : 'Link Payment Card'}
+              </h3>
+              <p className="text-xs text-[#6b7fa8]">
+                Enter a 16-digit credit card number. For testing, you can use any valid test card (e.g. 16 digits of 4242).
+              </p>
+            </div>
+
+            <form onSubmit={handleLinkOrChangeCard} className="space-y-4 font-mono text-xs">
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-[#6b7fa8] uppercase block font-mono">Card Brand</label>
+                <select
+                  value={cardBrand}
+                  onChange={e => setCardBrand(e.target.value)}
+                  className="w-full bg-[#020812]/50 border border-[#1e2d4a] rounded-xl px-3 py-2.5 text-xs text-white placeholder-[#6b7fa8] focus:outline-none focus:border-[#00ff88] font-mono"
+                >
+                  <option value="visa">Visa</option>
+                  <option value="mastercard">Mastercard</option>
+                  <option value="amex">American Express</option>
+                  <option value="discover">Discover</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-[#6b7fa8] uppercase block font-mono">Card Number</label>
+                <input
+                  type="text"
+                  maxLength={19}
+                  value={cardInput}
+                  onChange={e => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    const parts = [];
+                    for (let i = 0; i < val.length; i += 4) {
+                      parts.push(val.substring(i, i + 4));
+                    }
+                    setCardInput(parts.join(' '));
+                  }}
+                  placeholder="4242 4242 4242 4242"
+                  required
+                  className="w-full bg-[#020812]/50 border border-[#1e2d4a] rounded-xl px-3 py-2.5 text-xs text-white placeholder-[#6b7fa8] focus:outline-none focus:border-[#00ff88] font-mono"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCardModal(false);
+                    setCardInput('');
+                  }}
+                  className="flex-1 bg-transparent hover:bg-white/5 border border-[#1e2d4a] text-xs text-[#6b7fa8] hover:text-white py-2.5 rounded-xl transition-all cursor-pointer font-syne font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingCard}
+                  className="flex-1 bg-[#00ff88] text-[#0a0f1e] hover:bg-[#00dd77] disabled:opacity-50 py-2.5 rounded-xl text-xs font-syne font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  {submittingCard && <Loader2 size={12} className="animate-spin" />}
+                  {profile?.card_last4 ? 'Update Card' : 'Activate Pro'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

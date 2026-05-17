@@ -8,17 +8,16 @@ export function getStripeInstance() {
   let secretKey = '';
 
   if (isTestMode) {
-    // Try test-specific secret key, fallback to global
-    secretKey = process.env.STRIPE_TEST_SECRET || process.env.STRIPE_SECRET_KEY || '';
+    // Strictly use test key
+    secretKey = process.env.STRIPE_TEST_SECRET || '';
   } else {
-    // Try global/live secret key, fallback to test in safe environments
-    secretKey = process.env.STRIPE_SECRET_KEY || process.env.STRIPE_TEST_SECRET || '';
+    // Strictly use live/production key
+    secretKey = process.env.STRIPE_SECRET_KEY || '';
   }
 
-  // Sanitize fallback placeholder values
-  if (!secretKey || secretKey.includes('your_stripe_secret_key') || secretKey.includes('placeholder')) {
-    // If absolutely nothing exists, use the default seeded test secret
-    secretKey = process.env.STRIPE_TEST_SECRET || 'sk_test_placeholder_key_until_configured';
+  // Ensure secretKey is clean
+  if (!secretKey || secretKey.includes('your_stripe_secret_key')) {
+    secretKey = '';
   }
 
   return new Stripe(secretKey, {

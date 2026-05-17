@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { getScans, writeScans, getMonitoring } from '@/lib/db';
+import { getScans, writeScans, getMonitoring, getUsers } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,9 +16,13 @@ export async function GET(req: NextRequest) {
       .filter(s => s.user_id === session.id)
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+    const users = getUsers();
+    const dbUser = users.find(u => u.id === session.id);
+    const activePlan = dbUser?.plan || 'free';
+
     // Fetch monitored domains if Pro
     let userMonitoring: any[] = [];
-    if (session.plan === 'pro') {
+    if (activePlan === 'pro') {
       const allMonitoring = getMonitoring();
       userMonitoring = allMonitoring.filter(m => m.user_id === session.id);
     }
@@ -31,7 +35,9 @@ export async function GET(req: NextRequest) {
         role: session.role
       },
       profile: {
-        plan: session.plan
+        plan: activePlan,
+        card_last4: dbUser?.card_last4 || null,
+        card_brand: dbUser?.card_brand || null
       },
       scans: userScans,
       monitoring: userMonitoring

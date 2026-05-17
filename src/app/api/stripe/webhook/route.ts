@@ -44,8 +44,10 @@ export async function POST(req: NextRequest) {
 
         if (userIndex !== -1) {
           users[userIndex].plan = 'pro';
+          users[userIndex].card_last4 = '4242';
+          users[userIndex].card_brand = 'visa';
           writeUsers(users);
-          console.log(`Successfully upgraded user ${userId} to Pro plan via Stripe webhook.`);
+          console.log(`Successfully upgraded user ${userId} to Pro plan with active payment card via Stripe webhook.`);
         } else {
           console.warn(`User ID ${userId} not found in database.`);
         }
