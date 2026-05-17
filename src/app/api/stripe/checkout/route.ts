@@ -70,6 +70,23 @@ export async function POST(req: NextRequest) {
     const protocol = hostHeader.includes('localhost') || hostHeader.includes('127.0.0.1') ? 'http' : xForwardedProto;
     const appUrl = hostHeader ? `${protocol}://${hostHeader}` : (req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
 
+    // Resolve or reuse existing Stripe Customer to prevent multiple customer profiles
+    let customerParam: { customer?: string; customer_email?: string } = {
+      customer_email: sessionUser.email,
+    };
+
+    try {
+      const customers = await stripe.customers.list({
+        email: sessionUser.email.toLowerCase(),
+        limit: 1,
+      });
+      if (customers.data.length > 0) {
+        customerParam = { customer: customers.data[0].id };
+      }
+    } catch (custErr) {
+      console.error('Failed to resolve existing Stripe Customer:', custErr);
+    }
+
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -79,7 +96,7 @@ export async function POST(req: NextRequest) {
       }],
       success_url: `${appUrl}/dashboard?upgraded=true`,
       cancel_url: `${appUrl}/pricing`,
-      customer_email: sessionUser.email,
+      ...customerParam,
       metadata: { 
         userId: sessionUser.id,
         mode: settings.stripe_mode 
