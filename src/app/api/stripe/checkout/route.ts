@@ -64,7 +64,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Dynamically detect the active domain from request headers to ensure Stripe redirects stay on the correct environment
+    const hostHeader = req.headers.get('host') || '';
+    const xForwardedProto = req.headers.get('x-forwarded-proto') || 'https';
+    const protocol = hostHeader.includes('localhost') || hostHeader.includes('127.0.0.1') ? 'http' : xForwardedProto;
+    const appUrl = hostHeader ? `${protocol}://${hostHeader}` : (req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
