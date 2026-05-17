@@ -668,7 +668,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-2">
             <Shield className="text-[#00ff88] fill-[#00ff88]/10 animate-pulse" size={22} />
             <span className="font-syne font-bold text-lg tracking-tight text-white">
-              Guard<span className="text-[#00ff88]">Console</span>
+              Inbox<span className="text-[#00ff88]">Fixer</span>
             </span>
           </div>
 
