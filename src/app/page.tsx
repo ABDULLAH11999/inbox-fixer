@@ -91,42 +91,42 @@ export default function HomePage() {
 
       {/* Header / Navbar */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50 transition-all">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/" className="flex items-center gap-2.5 group">
-            <div className="bg-[#0f1729] p-2 rounded-xl border border-[#1e2d4a] group-hover:border-[#00ff88]/50 transition-all">
-              <Shield className="text-[#00ff88]" size={22} />
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
+          <a href="/" className="flex items-center gap-2 group">
+            <div className="bg-[#0f1729] p-1.5 sm:p-2 rounded-xl border border-[#1e2d4a] group-hover:border-[#00ff88]/50 transition-all">
+              <Shield className="text-[#00ff88]" size={18} />
             </div>
-            <span className="font-syne font-bold text-2xl tracking-tight text-white">
+            <span className="font-syne font-bold text-lg sm:text-2xl tracking-tight text-white">
               Inbox<span className="text-[#00ff88]">Fixer</span>
             </span>
           </a>
 
-          <nav className="flex gap-6 items-center">
-            <a href="/pricing" className="text-[#6b7fa8] hover:text-white transition-colors text-sm font-semibold">
+          <nav className="flex gap-2 sm:gap-6 items-center">
+            <a href="/pricing" className="hidden xs:inline-block text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
               Pricing
             </a>
             
             {user ? (
-              <div className="flex items-center gap-4">
-                <a href="/dashboard" className="text-[#6b7fa8] hover:text-white transition-colors text-sm font-semibold flex items-center gap-1.5 bg-[#0f1729] px-3.5 py-1.5 rounded-lg border border-[#1e2d4a]">
-                  <User size={14} className="text-[#00ff88]" />
+              <div className="flex items-center gap-2 sm:gap-4">
+                <a href="/dashboard" className="text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold flex items-center gap-1 bg-[#0f1729] px-2.5 py-1.5 rounded-lg border border-[#1e2d4a]">
+                  <User size={13} className="text-[#00ff88]" />
                   Dashboard
                 </a>
                 <button
                   onClick={handleLogout}
-                  className="text-xs text-[#ff4444] hover:text-white transition-colors cursor-pointer"
+                  className="bg-transparent hover:bg-white/5 border border-[#1e2d4a] text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg transition-all cursor-pointer font-sans"
                 >
-                  Logout
+                  Sign Out
                 </button>
               </div>
             ) : (
-              <div className="flex gap-3 items-center">
-                <a href="/auth/login" className="text-[#6b7fa8] hover:text-white transition-colors text-sm font-semibold px-2 py-1.5">
+              <div className="flex gap-2 sm:gap-3 items-center">
+                <a href="/auth/login" className="text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold px-1 py-1 sm:px-2 sm:py-1.5">
                   Login
                 </a>
                 <a 
                   href="/auth/signup" 
-                  className="bg-[#00ff88] text-[#0a0f1e] px-4 py-2 rounded-xl font-syne font-bold hover:bg-[#00dd77] hover:scale-[1.02] active:scale-[0.98] transition-all text-sm"
+                  className="bg-[#00ff88] text-[#0a0f1e] px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-syne font-bold hover:bg-[#00dd77] hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm whitespace-nowrap"
                 >
                   Sign Up Free
                 </a>
@@ -139,10 +139,15 @@ export default function HomePage() {
       {/* Hero Section */}
       <main className="flex-1 max-w-5xl mx-auto px-6 pt-16 pb-20 flex flex-col justify-center items-center text-center">
         {/* Urgent Warning Badge */}
-        <div className="inline-flex items-center gap-2 bg-[#0f1729] border border-[#1e2d4a] rounded-full px-5 py-2.5 text-xs text-[#6b7fa8] mb-8 animate-pulse electric-glow">
-          <Zap size={14} className="text-[#00ff88]" />
-          <span className="font-semibold text-white">Gmail & Yahoo:</span>
-          <span>SPF + DKIM + DMARC is now mandatory in 2024–2026.</span>
+        <div className="inline-flex flex-wrap items-center justify-center gap-2 bg-[#0f1729]/95 border border-[#00ff88]/30 rounded-full px-5 py-2.5 text-xs mb-8 text-[#a3b8cc] shadow-[0_0_20px_rgba(0,255,136,0.06)] backdrop-blur-sm animate-pulse">
+          <div className="flex items-center gap-1.5 text-[#00ff88] font-bold uppercase tracking-wider text-[10px]">
+            <Zap size={13} className="fill-[#00ff88] animate-bounce" />
+            <span>Gmail & Yahoo Rules:</span>
+          </div>
+          <span className="h-3 w-[1px] bg-[#1e2d4a]/80 hidden xs:inline" />
+          <span className="font-medium text-white">
+            <strong className="text-[#00ff88] font-semibold">SPF, DKIM & DMARC</strong> are now mandatory in 2024–2026.
+          </span>
         </div>
 
         <h1 className="font-syne font-bold text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-6 tracking-tight max-w-4xl text-white">
@@ -173,7 +178,7 @@ export default function HomePage() {
           <button
             type="submit"
             disabled={loading || !domain.trim()}
-            className="bg-[#00ff88] text-[#0a0f1e] px-8 py-4 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-2 group cursor-pointer"
+            className="bg-[#00ff88] text-[#0a0f1e] px-8 py-4 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all disabled:opacity-85 disabled:hover:scale-100 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-2 group cursor-pointer shadow-[0_4px_14px_rgba(0,255,136,0.15)] enabled:hover:shadow-[0_0_22px_rgba(0,255,136,0.35)]"
           >
             {loading ? 'Checking Records...' : 'Instant Domain Check'}
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
@@ -185,7 +190,7 @@ export default function HomePage() {
         </p>
 
         {/* Live Diagnostics Badge Carousel / Trust row */}
-        <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 mt-20 text-xs font-mono text-[#6b7fa8]">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-xl w-full mt-20 text-xs font-mono">
           {[
             { icon: CheckCircle, text: 'SPF Record' },
             { icon: CheckCircle, text: 'DKIM Signatures' },
@@ -194,9 +199,14 @@ export default function HomePage() {
             { icon: CheckCircle, text: '9+ IP Blacklists' },
             { icon: CheckCircle, text: 'Reverse DNS (rDNS)' },
           ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-2 bg-[#0f1729]/30 px-3 py-1.5 rounded-full border border-[#1e2d4a]/50">
-              <Icon size={14} className="text-[#00ff88]" />
-              <span>{text}</span>
+            <div 
+              key={text} 
+              className="flex items-center gap-2 bg-[#0a271c]/25 hover:bg-[#00ff88]/10 px-4 py-2.5 rounded-xl border border-[#00ff88]/20 hover:border-[#00ff88]/50 transition-all shadow-[0_2px_10px_rgba(0,255,136,0.01)] group justify-center sm:justify-start"
+            >
+              <Icon size={14} className="text-[#00ff88] drop-shadow-[0_0_4px_rgba(0,255,136,0.45)] shrink-0" />
+              <span className="text-[#c2d6e8] group-hover:text-white font-medium transition-colors text-[11px] sm:text-xs">
+                {text}
+              </span>
             </div>
           ))}
         </div>
@@ -228,7 +238,7 @@ export default function HomePage() {
               },
             ].map(({ step, title, desc }) => (
               <div key={step} className="bg-[#0f1729]/80 border border-[#1e2d4a]/50 rounded-2xl p-8 hover:border-[#00ff88]/30 transition-all hover:scale-[1.01]">
-                <div className="font-mono text-[#00ff88] text-5xl font-bold mb-6 opacity-30 select-none">{step}</div>
+                <div className="font-mono text-[#00ff88] text-5xl font-bold mb-6 opacity-80 select-none">{step}</div>
                 <h3 className="font-syne font-bold text-xl mb-3 text-white">{title}</h3>
                 <p className="text-[#6b7fa8] text-sm leading-relaxed">{desc}</p>
               </div>
@@ -254,7 +264,7 @@ export default function HomePage() {
               <span className="font-mono font-bold text-lg text-white">4.9/5.0</span>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} size={15} className="fill-[#00ff88] text-[#00ff88]" />
+                  <Star key={s} size={15} className="fill-[#ffb800] text-[#ffb800]" />
                 ))}
               </div>
               <span className="text-[10px] font-mono text-[#6b7fa8] uppercase tracking-wider pl-1.5 border-l border-[#1e2d4a]/50">
@@ -271,7 +281,7 @@ export default function HomePage() {
                 <div className="flex justify-between items-center">
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={13} className="fill-[#00ff88] text-[#00ff88]" />
+                      <Star key={s} size={13} className="fill-[#ffb800] text-[#ffb800]" />
                     ))}
                   </div>
                   <span className="text-[9px] font-mono text-[#6b7fa8] bg-[#020812]/50 px-2 py-0.5 rounded-lg border border-[#1e2d4a]/50">Verified Shopify Owner</span>
@@ -297,7 +307,7 @@ export default function HomePage() {
                 <div className="flex justify-between items-center">
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={13} className="fill-[#00ff88] text-[#00ff88]" />
+                      <Star key={s} size={13} className="fill-[#ffb800] text-[#ffb800]" />
                     ))}
                   </div>
                   <span className="text-[9px] font-mono text-[#6b7fa8] bg-[#020812]/50 px-2 py-0.5 rounded-lg border border-[#1e2d4a]/50">Marketing Director</span>
@@ -323,7 +333,7 @@ export default function HomePage() {
                 <div className="flex justify-between items-center">
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={13} className="fill-[#00ff88] text-[#00ff88]" />
+                      <Star key={s} size={13} className="fill-[#ffb800] text-[#ffb800]" />
                     ))}
                   </div>
                   <span className="text-[9px] font-mono text-[#6b7fa8] bg-[#020812]/50 px-2 py-0.5 rounded-lg border border-[#1e2d4a]/50">Founder & CEO</span>
@@ -356,6 +366,7 @@ export default function HomePage() {
           </div>
           <div className="flex gap-6">
             <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
+            <a href="/blog" className="hover:text-white transition-colors">Blog</a>
             <a href="/auth/login" className="hover:text-white transition-colors">Login</a>
             <a href="/auth/signup" className="hover:text-white transition-colors">Sign Up</a>
           </div>

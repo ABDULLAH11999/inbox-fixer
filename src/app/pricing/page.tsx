@@ -70,12 +70,12 @@ export default function PricingPage() {
 
       {/* Navbar */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/" className="font-syne font-bold text-xl tracking-tight text-white flex items-center gap-2">
-            <Shield className="text-[#00ff88]" size={18} />
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
+          <a href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+            <Shield className="text-[#00ff88]" size={16} />
             <span>Inbox<span className="text-[#00ff88]">Fixer</span></span>
           </a>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-3 sm:gap-4 items-center">
             <a href="/" className="text-xs text-[#6b7fa8] hover:text-white transition-colors font-semibold">
               ← Home
             </a>

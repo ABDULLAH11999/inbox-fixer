@@ -139,21 +139,22 @@ function DashboardContent() {
     <div className="min-h-screen bg-[#0a0f1e] flex flex-col justify-between">
       {/* Header */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/" className="font-syne font-bold text-xl tracking-tight text-white flex items-center gap-2">
-            <Shield className="text-[#00ff88]" size={18} />
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
+          <a href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+            <Shield className="text-[#00ff88]" size={16} />
             <span>Inbox<span className="text-[#00ff88]">Fixer</span></span>
           </a>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-2 sm:gap-4 items-center">
             {user?.role === 'superadmin' && (
-              <a href="/admin" className="text-xs text-[#00ff88] hover:underline font-mono">
-                Admin Control Panel
+              <a href="/admin" className="text-[10px] sm:text-xs text-[#00ff88] hover:underline font-mono">
+                <span className="hidden xs:inline">Admin Control Panel</span>
+                <span className="xs:hidden">Admin</span>
               </a>
             )}
-            <a href="/pricing" className="text-xs text-[#6b7fa8] hover:text-white transition-colors">Pricing</a>
+            <a href="/pricing" className="hidden xs:inline-block text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white transition-colors">Pricing</a>
             <button
               onClick={handleLogout}
-              className="bg-transparent hover:bg-white/5 border border-[#1e2d4a] text-xs text-[#6b7fa8] hover:text-white px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+              className="bg-transparent hover:bg-white/5 border border-[#1e2d4a] text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg transition-all cursor-pointer"
             >
               Sign Out
             </button>

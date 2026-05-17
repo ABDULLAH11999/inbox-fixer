@@ -49,26 +49,26 @@ export default async function BlogDetailPage({ params }: Props) {
 
       {/* Header / Navbar */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50 transition-all">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/" className="flex items-center gap-2.5 group">
-            <div className="bg-[#0f1729] p-2 rounded-xl border border-[#1e2d4a] group-hover:border-[#00ff88]/50 transition-all">
-              <Shield className="text-[#00ff88]" size={22} />
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
+          <a href="/" className="flex items-center gap-2 group">
+            <div className="bg-[#0f1729] p-1.5 sm:p-2 rounded-xl border border-[#1e2d4a] group-hover:border-[#00ff88]/50 transition-all">
+              <Shield className="text-[#00ff88]" size={18} />
             </div>
-            <span className="font-syne font-bold text-2xl tracking-tight text-white">
+            <span className="font-syne font-bold text-lg sm:text-2xl tracking-tight text-white">
               Inbox<span className="text-[#00ff88]">Fixer</span>
             </span>
           </a>
 
-          <nav className="flex gap-6 items-center">
-            <a href="/pricing" className="text-[#6b7fa8] hover:text-white transition-colors text-sm font-semibold">
+          <nav className="flex gap-2 sm:gap-6 items-center">
+            <a href="/pricing" className="hidden xs:inline-block text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
               Pricing
             </a>
-            <a href="/blog" className="text-[#00ff88] hover:text-white transition-colors text-sm font-semibold border-b-2 border-[#00ff88] pb-1">
+            <a href="/blog" className="hidden xs:inline-block text-[#00ff88] hover:text-white transition-colors text-xs sm:text-sm font-semibold border-b-2 border-[#00ff88] pb-1">
               Blog
             </a>
             <a 
               href="/auth/signup" 
-              className="bg-[#00ff88] text-[#0a0f1e] px-4 py-2 rounded-xl font-syne font-bold hover:bg-[#00dd77] hover:scale-[1.02] active:scale-[0.98] transition-all text-sm"
+              className="bg-[#00ff88] text-[#0a0f1e] px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-syne font-bold hover:bg-[#00dd77] hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm whitespace-nowrap"
             >
               Sign Up Free
             </a>
@@ -153,7 +153,7 @@ export default async function BlogDetailPage({ params }: Props) {
             <div className="flex items-center gap-1.5">
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} size={13} className="fill-[#00ff88] text-[#00ff88]" />
+                  <Star key={s} size={13} className="fill-[#ffb800] text-[#ffb800]" />
                 ))}
               </div>
               <span className="text-xs font-mono font-bold text-white">4.9/5.0 Stars</span>
@@ -177,6 +177,7 @@ export default async function BlogDetailPage({ params }: Props) {
           </div>
           <div className="flex gap-6">
             <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
+            <a href="/blog" className="hover:text-white transition-colors">Blog</a>
             <a href="/auth/login" className="hover:text-white transition-colors">Login</a>
             <a href="/auth/signup" className="hover:text-white transition-colors">Sign Up</a>
           </div>

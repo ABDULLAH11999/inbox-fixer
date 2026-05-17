@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { 
   CheckCircle, 
@@ -207,12 +207,15 @@ export default function ResultsPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [apiDone, setApiDone] = useState(false);
 
-  // Step-by-step progress animation with dynamic intervals (first half: 3s, next half: 5s)
+  // Guard flag to prevent double-firing in Strict Mode or re-renders
+  const scanInitiatedRef = useRef(false);
+
+  // Step-by-step progress animation to complete all 6 ticks within 5 seconds (700ms intervals)
   useEffect(() => {
     if (!loading || apiDone) return;
     if (currentStep >= 6) return;
 
-    const intervalTime = currentStep < 3 ? 3000 : 5000;
+    const intervalTime = 700;
 
     const timeout = setTimeout(() => {
       setCurrentStep((prev) => {
@@ -235,6 +238,10 @@ export default function ResultsPage() {
   }, [currentStep, apiDone]);
 
   useEffect(() => {
+    if (!domain) return;
+    if (scanInitiatedRef.current) return;
+    scanInitiatedRef.current = true;
+
     async function checkPlanAndScan() {
       // Check auth plan first
       try {
@@ -273,9 +280,7 @@ export default function ResultsPage() {
       }
     }
     
-    if (domain) {
-      checkPlanAndScan();
-    }
+    checkPlanAndScan();
   }, [domain]);
 
   const handlePdfExport = async () => {
@@ -294,9 +299,12 @@ export default function ResultsPage() {
 
     setPdfLoading(true);
     try {
-      // Lazy load jsPDF to minimize bundle chunk sizes
-      const { jsPDF } = await import('jspdf');
-      await import('jspdf-autotable');
+      // Lazy load jsPDF to minimize bundle chunk sizes in a bulletproof multi-environment resolver
+      const jsPDFModule = await import('jspdf');
+      const jsPDF = jsPDFModule.jsPDF || jsPDFModule.default;
+      
+      const autoTableModule = await import('jspdf-autotable');
+      const autoTable = autoTableModule.default || autoTableModule;
 
       const doc = new jsPDF();
       
@@ -341,14 +349,14 @@ export default function ResultsPage() {
       const tableStartY = 73 + (splitSummary.length * 6) + 10;
 
       // Scan rows
-      const tableRows = Object.entries(results.checks).map(([key, check]) => [
+      const tableRows = Object.entries(results.checks || {}).map(([key, check]: [string, any]) => [
         key.toUpperCase(),
-        check.status.toUpperCase(),
-        check.issue || 'All checks passed. Authenticated and secure.',
-        check.fixCode || 'No updates required.'
+        (check?.status || 'UNKNOWN').toUpperCase(),
+        check?.issue || 'All checks passed. Authenticated and secure.',
+        check?.fixCode || 'No updates required.'
       ]);
 
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: tableStartY,
         head: [['DNS Component', 'Auth Status', 'Issue Found', 'Recommended Fix Value']],
         body: tableRows,
@@ -476,17 +484,18 @@ export default function ResultsPage() {
     <div className="min-h-screen bg-[#0a0f1e] flex flex-col justify-between">
       {/* Navbar */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/" className="font-syne font-bold text-xl tracking-tight text-white flex items-center gap-2">
-            <Shield className="text-[#00ff88]" size={18} />
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
+          <a href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+            <Shield className="text-[#00ff88]" size={16} />
             <span>Inbox<span className="text-[#00ff88]">Fixer</span></span>
           </a>
           <a 
             href="/" 
-            className="flex items-center gap-1.5 text-xs text-[#6b7fa8] hover:text-white transition-colors bg-[#0f1729] px-3.5 py-1.5 rounded-lg border border-[#1e2d4a] font-semibold"
+            className="flex items-center gap-1.5 text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white transition-colors bg-[#0f1729] px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-lg border border-[#1e2d4a] font-semibold"
           >
             <ArrowLeft size={13} />
-            Check Another Domain
+            <span className="hidden xs:inline">Check Another Domain</span>
+            <span className="xs:hidden">New Check</span>
           </a>
         </div>
       </header>

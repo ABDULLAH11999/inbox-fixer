@@ -32,26 +32,26 @@ export default async function BlogHubPage() {
 
       {/* Header / Navbar */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50 transition-all">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/" className="flex items-center gap-2.5 group">
-            <div className="bg-[#0f1729] p-2 rounded-xl border border-[#1e2d4a] group-hover:border-[#00ff88]/50 transition-all">
-              <Shield className="text-[#00ff88]" size={22} />
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
+          <a href="/" className="flex items-center gap-2 group">
+            <div className="bg-[#0f1729] p-1.5 sm:p-2 rounded-xl border border-[#1e2d4a] group-hover:border-[#00ff88]/50 transition-all">
+              <Shield className="text-[#00ff88]" size={18} />
             </div>
-            <span className="font-syne font-bold text-2xl tracking-tight text-white">
+            <span className="font-syne font-bold text-lg sm:text-2xl tracking-tight text-white">
               Inbox<span className="text-[#00ff88]">Fixer</span>
             </span>
           </a>
 
-          <nav className="flex gap-6 items-center">
-            <a href="/pricing" className="text-[#6b7fa8] hover:text-white transition-colors text-sm font-semibold">
+          <nav className="flex gap-2 sm:gap-6 items-center">
+            <a href="/pricing" className="hidden xs:inline-block text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
               Pricing
             </a>
-            <a href="/blog" className="text-white hover:text-[#00ff88] transition-colors text-sm font-semibold border-b-2 border-[#00ff88] pb-1">
+            <a href="/blog" className="hidden xs:inline-block text-white hover:text-[#00ff88] transition-colors text-xs sm:text-sm font-semibold border-b-2 border-[#00ff88] pb-1">
               Blog
             </a>
             <a 
               href="/auth/signup" 
-              className="bg-[#00ff88] text-[#0a0f1e] px-4 py-2 rounded-xl font-syne font-bold hover:bg-[#00dd77] hover:scale-[1.02] active:scale-[0.98] transition-all text-sm"
+              className="bg-[#00ff88] text-[#0a0f1e] px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-syne font-bold hover:bg-[#00dd77] hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm whitespace-nowrap"
             >
               Sign Up Free
             </a>
@@ -69,7 +69,7 @@ export default async function BlogHubPage() {
             <span className="text-xs font-mono font-semibold text-white">InboxFixer Trust Index:</span>
             <div className="flex gap-0.5">
               {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} size={11} className="fill-[#00ff88] text-[#00ff88]" />
+                <Star key={s} size={11} className="fill-[#ffb800] text-[#ffb800]" />
               ))}
             </div>
             <span className="text-[11px] font-mono text-[#00ff88] font-bold">4.9/5.0 Stars</span>
@@ -95,7 +95,7 @@ export default async function BlogHubPage() {
           {blogs.map((blog) => (
             <article 
               key={blog.id} 
-              className="bg-[#0f1729]/65 border border-[#1e2d4a]/75 rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between hover:border-[#00ff88]/30 transition-all hover:scale-[1.01] group"
+              className="bg-[#0f1729]/65 border border-[#1e2d4a]/75 rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between hover:border-[#00ff88]/30 transition-all hover:scale-[1.01] group relative"
             >
               <div className="space-y-4">
                 <div className="relative aspect-video w-full overflow-hidden border-b border-[#1e2d4a]/70">
@@ -104,9 +104,6 @@ export default async function BlogHubPage() {
                     alt={blog.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-3 left-3 bg-[#020812]/80 border border-[#1e2d4a] rounded-lg px-2.5 py-1 text-[9px] font-mono font-bold text-[#00ff88] uppercase tracking-wider">
-                    {new Date(blog.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                  </div>
                 </div>
 
                 <div className="p-6 space-y-3">
@@ -122,7 +119,10 @@ export default async function BlogHubPage() {
                   </div>
 
                   <h2 className="font-syne font-bold text-base md:text-lg text-white group-hover:text-[#00ff88] transition-colors leading-snug">
-                    <a href={`/blog/${blog.slug}`}>{blog.title}</a>
+                    <a href={`/blog/${blog.slug}`} className="focus:outline-none">
+                      <span className="absolute inset-0" aria-hidden="true" />
+                      {blog.title}
+                    </a>
                   </h2>
 
                   <p className="text-xs text-[#8b9fc0] leading-relaxed line-clamp-3">
@@ -154,6 +154,7 @@ export default async function BlogHubPage() {
           </div>
           <div className="flex gap-6">
             <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
+            <a href="/blog" className="hover:text-white transition-colors">Blog</a>
             <a href="/auth/login" className="hover:text-white transition-colors">Login</a>
             <a href="/auth/signup" className="hover:text-white transition-colors">Sign Up</a>
           </div>
