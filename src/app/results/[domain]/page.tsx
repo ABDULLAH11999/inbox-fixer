@@ -18,7 +18,8 @@ import {
   ChevronUp,
   AlertCircle,
   Loader2,
-  Star
+  Star,
+  Zap
 } from 'lucide-react';
 import type { ScanResults, CheckStatus } from '@/types';
 import { toast } from 'sonner';
@@ -538,6 +539,10 @@ export default function ResultsPage() {
   }
 
   if (error) {
+    const isLimitError = error.toLowerCase().includes('limit') || 
+                         error.toLowerCase().includes('scans') || 
+                         error.toLowerCase().includes('scans per day');
+
     return (
       <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center p-6">
         <div className="text-center max-w-md bg-[#0f1729] border border-fail/30 rounded-3xl p-8 shadow-xl">
@@ -545,20 +550,29 @@ export default function ResultsPage() {
             <XCircle className="text-[#ff4444]" size={42} />
           </div>
           <h2 className="font-syne font-bold text-2xl text-white mb-3">Check Interrupted</h2>
-          <p className="text-[#6b7fa8] text-sm leading-relaxed mb-6">{error}</p>
-          <div className="flex flex-col gap-2">
-            <a 
-              href="/" 
-              className="bg-[#00ff88] text-[#0a0f1e] px-6 py-3.5 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all"
-            >
-              Check Another Domain
-            </a>
-            {error.includes('limit reached') && (
+          <p className="text-[#8b9fc0] text-sm leading-relaxed mb-6">{error}</p>
+          <div className="flex flex-col gap-3">
+            {isLimitError ? (
+              <>
+                <a 
+                  href="/pricing" 
+                  className="bg-[#00ff88] text-[#0a0f1e] px-6 py-3.5 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                >
+                  <Zap size={15} className="fill-current" /> Upgrade to PRO
+                </a>
+                <a 
+                  href="/" 
+                  className="bg-[#101626] text-[#8b9fc0] hover:text-white px-6 py-3.5 rounded-xl font-syne font-bold border border-[#1e2d4a] hover:border-[#00ff88]/30 active:scale-[0.98] transition-all"
+                >
+                  Check Another Domain
+                </a>
+              </>
+            ) : (
               <a 
-                href="/pricing" 
-                className="text-xs text-[#6b7fa8] hover:text-white mt-2 transition-colors font-mono underline"
+                href="/" 
+                className="bg-[#00ff88] text-[#0a0f1e] px-6 py-3.5 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all"
               >
-                View pricing plans starting at $9/mo
+                Check Another Domain
               </a>
             )}
           </div>
