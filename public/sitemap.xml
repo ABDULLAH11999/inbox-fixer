@@ -3,213 +3,513 @@
   <!-- Core Static Pages -->
   <url>
     <loc>https://inboxfixer.online</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://inboxfixer.online/pricing</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://inboxfixer.online/blog</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://inboxfixer.online/auth/login</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://inboxfixer.online/auth/signup</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- Dynamic Blog Posts -->
   <url>
-    <loc>https://inboxfixer.online/blog/how-to-fix-spf-syntax-errors-google-workspace</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/fixing-spf-syntax-errors-google-workspace</loc>
+    <lastmod>2026-05-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://inboxfixer.online/blog/resolving-dkim-signature-alignment-failures</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/dmarc-alignment-preventing-phishing-attacks</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/implementing-bulletproof-dmarc-record-policy</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/ip-blacklist-removal-spamhaus-barracuda</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/why-your-emails-go-to-spam-yahoo-mail</loc>
+    <lastmod>2026-05-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/gmail-yahoo-mandatory-bulk-sender-guidelines</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/absolute-guide-spf-softfail-vs-hardfail</loc>
+    <lastmod>2026-05-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-mx-records-6</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/how-to-set-up-bimi-for-brand-identity</loc>
+    <lastmod>2026-05-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-cold-email-7</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/choosing-right-smtp-relay-service</loc>
+    <lastmod>2026-04-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-smtp-errors-8</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/resolving-ip-blacklist-status-instantly</loc>
+    <lastmod>2026-04-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-reverse-dns-9</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/configuring-dmarc-reporting-rua-ruf</loc>
+    <lastmod>2026-04-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-list-hygiene-10</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/understanding-gmail-bulk-sender-requirements</loc>
+    <lastmod>2026-04-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-double-optin-11</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/how-to-clean-and-validate-email-lists-safely</loc>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-dns-propagation-12</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/best-practices-for-sending-ip-warmup-strategies</loc>
+    <lastmod>2026-04-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-bimi-branding-13</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/fixing-high-transactional-email-bounce-rates</loc>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-shared-ip-14</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/demystifying-spf-include-limits-and-flattening</loc>
+    <lastmod>2026-04-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-transactional-mail-15</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/how-dkim-selectors-work-under-the-hood</loc>
+    <lastmod>2026-04-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-reputation-recovery-16</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/setting-up-feedback-loops-with-major-isps</loc>
+    <lastmod>2026-04-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-tls-encryption-17</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/the-impact-of-reverse-dns-rdns-on-inbox-rates</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-yahoo-complaints-18</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/how-spam-filters-score-and-parse-email-headers</loc>
+    <lastmod>2026-03-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-smtp-ports-19</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/avoiding-spam-trigger-words-in-subject-lines</loc>
+    <lastmod>2026-03-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-dnsbl-check-20</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/dmarc-pct-parameter-how-to-safely-rollout-policies</loc>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-sendgrid-auth-21</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/the-ultimate-guide-to-mx-records-and-domain-setup</loc>
+    <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-mailchimp-dkim-22</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/fixing-spf-permfail-permissive-failures-instantly</loc>
+    <lastmod>2026-03-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-activecampaign-fix-23</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/how-to-authenticate-subdomain-email-paths-correctly</loc>
+    <lastmod>2026-03-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-google-postmaster-24</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/outlook-smart-network-data-services-snds-console</loc>
+    <lastmod>2026-03-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-rfc-compliance-25</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/understanding-smtp-greylisting-and-retry-mechanics</loc>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-spam-trigger-words-26</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/preventing-email-spoofing-and-phishing-attacks-securely</loc>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-outlook-junk-27</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/optimizing-html-email-code-for-fast-client-parsing</loc>
+    <lastmod>2026-03-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-unsubscribed-header-28</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/tracking-email-deliverability-metrics-on-a-daily-basis</loc>
+    <lastmod>2026-02-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-cold-mailing-list-29</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/setting-up-tls-encryption-for-outbound-mail-streams</loc>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://inboxfixer.online/blog/expert-guide-dkim-selectors-30</loc>
-    <lastmod>2026-05-17</lastmod>
+    <loc>https://inboxfixer.online/blog/how-listunsubscribe-headers-affect-domain-reputation</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/configuring-spf-for-multiple-thirdparty-senders-safely</loc>
+    <lastmod>2026-02-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/the-role-of-domain-registration-age-in-spam-scoring</loc>
+    <lastmod>2026-02-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-perform-a-comprehensive-domain-email-audit</loc>
+    <lastmod>2026-02-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/understanding-spamassassin-rules-and-filter-mechanics</loc>
+    <lastmod>2026-02-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-set-up-custom-returnpath-domain-alignments</loc>
+    <lastmod>2026-02-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/email-deliverability-for-saas-multitenant-architectures</loc>
+    <lastmod>2026-02-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/why-complex-spf-mechanics-block-legitimate-deliveries</loc>
+    <lastmod>2026-01-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/configuring-microsoft-365-dkim-keys-and-selectors</loc>
+    <lastmod>2026-01-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/managing-cold-email-campaigns-legally-and-safely</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-mitigate-shared-ip-spam-reputation-risks</loc>
+    <lastmod>2026-01-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/dkim-cryptographic-key-rotation-best-practices</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/using-spf-macros-for-highly-dynamic-dns-validation</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/what-is-the-real-difference-between-quarantine-and-reject</loc>
+    <lastmod>2026-01-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/understanding-the-barracuda-blacklist-check-and-fixes</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/why-yahoo-blocks-bulk-smtp-server-connections-today</loc>
+    <lastmod>2026-01-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/a-complete-walkthrough-of-google-postmaster-tools-setup</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/configuring-spf-and-dkim-for-shopify-store-ecommerce</loc>
+    <lastmod>2025-12-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-setup-spf-and-dkim-for-mailchimp-delivery-success</loc>
+    <lastmod>2025-12-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/resolving-spf-too-many-dns-lookups-limit-errors</loc>
+    <lastmod>2025-12-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/dmarc-alignment-deep-dive-into-relaxed-vs-strict-mode</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-handle-gmail-error-code-550-571-deliveries</loc>
+    <lastmod>2025-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/the-critical-difference-between-envelope-and-header-from</loc>
+    <lastmod>2025-12-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-monitor-ip-blacklists-using-snds-alerts</loc>
+    <lastmod>2025-12-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/creating-a-highconverting-html-deliverability-template</loc>
+    <lastmod>2025-12-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/managing-custom-domains-for-high-volume-email-newsletters</loc>
+    <lastmod>2025-12-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/why-email-preheader-tags-matter-for-inbox-deliverability</loc>
+    <lastmod>2025-12-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/configuring-spf-and-dkim-for-hubspot-campaigns-success</loc>
+    <lastmod>2025-12-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/avoiding-the-spam-folder-on-cold-outbound-sales-campaigns</loc>
+    <lastmod>2025-11-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/understanding-microsoft-outlook-junk-filter-logic-secrets</loc>
+    <lastmod>2025-11-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-setup-dmarc-for-sendgrid-outbound-smtp-mails</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/the-ultimate-checklist-for-global-email-deliverability-checks</loc>
+    <lastmod>2025-11-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-spam-traps-and-honey-pots-damage-domain-reputations</loc>
+    <lastmod>2025-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/resolving-dkim-body-hash-did-not-verify-signature-issues</loc>
+    <lastmod>2025-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/configuring-spf-for-activecampaign-sender-authentication</loc>
+    <lastmod>2025-11-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-domain-redirection-affects-outbound-email-reputation</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/the-serious-hazards-of-using-purchased-b2b-mailing-lists</loc>
+    <lastmod>2025-11-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/understanding-spf-ptr-mechanism-deprecation-and-alternatives</loc>
+    <lastmod>2025-11-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-setup-and-validate-dmarc-on-cloudflare-dns-manager</loc>
+    <lastmod>2025-10-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/authenticating-corporate-smtp-relays-securely-with-office365</loc>
+    <lastmod>2025-10-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/guide-to-email-header-diagnostic-analysis-for-beginners</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/why-large-attachments-trigger-spam-filters-automatically</loc>
+    <lastmod>2025-10-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-configure-spf-and-dkim-for-aws-ses-outbound-streams</loc>
+    <lastmod>2025-10-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/what-is-bimi-and-how-does-it-prevent-domain-phishing</loc>
+    <lastmod>2025-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/understanding-spamcop-and-uceprotect-blacklist-delisting</loc>
+    <lastmod>2025-10-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-setup-spf-and-dkim-for-zoho-business-mail-accounts</loc>
+    <lastmod>2025-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/why-shared-server-ips-always-land-in-outlook-spam-folders</loc>
+    <lastmod>2025-10-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/dmarc-reporting-how-to-parse-and-read-xml-reports</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-warm-up-a-new-sending-domain-for-bulk-campaigns</loc>
+    <lastmod>2025-09-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/understanding-listunsubscribe-mailto-headers-implementation</loc>
+    <lastmod>2025-09-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://inboxfixer.online/blog/how-to-setup-bulletproof-spf-on-godaddy-dns-manager</loc>
+    <lastmod>2025-09-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

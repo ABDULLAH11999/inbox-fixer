@@ -33,7 +33,7 @@ import { toast } from 'sonner';
 export default function AdminPage() {
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'plans' | 'payments' | 'config' | 'seo' | 'blogs' | 'track' | 'feedback'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'plans' | 'payments' | 'config' | 'seo' | 'blogs' | 'track' | 'feedback' | 'contacts'>('overview');
   const [timeFilter, setTimeFilter] = useState<'1day' | '7days' | '30days' | 'overall'>('7days');
   const router = useRouter();
 
@@ -783,6 +783,18 @@ export default function AdminPage() {
             >
               <Zap size={15} />
               User Feedback
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('contacts'); setBlogFormOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-syne font-bold transition-all text-left cursor-pointer ${
+                activeTab === 'contacts' 
+                  ? 'bg-[#00ff88]/15 border border-[#00ff88]/30 text-[#00ff88]' 
+                  : 'text-[#6b7fa8] hover:text-white hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              <Mail size={15} />
+              Support Contacts
             </button>
 
           </nav>
@@ -2036,6 +2048,149 @@ export default function AdminPage() {
                             </td>
                             <td className="p-4 pr-6 text-right text-[#6b7fa8] font-mono whitespace-nowrap">
                               {new Date(f.created_at).toLocaleString()}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 10: SUPPORT CONTACT TICKETS */}
+        {activeTab === 'contacts' && adminData && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="space-y-2">
+              <h2 className="font-syne font-bold text-2xl text-white tracking-tight">Support Contacts Registry</h2>
+              <p className="text-xs text-[#6b7fa8] font-mono">User questions and deliverability help tickets submitted via the support form.</p>
+            </div>
+
+            {/* Glowing Analytical Cards */}
+            {(() => {
+              const contacts = adminData.contacts || [];
+              const totalCount = contacts.length;
+              const uniqueSenders = new Set(contacts.map((c: any) => c.email.toLowerCase())).size;
+
+              return (
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4">
+                    <div className="bg-[#00ff88]/10 p-3.5 rounded-full border border-[#00ff88]/20">
+                      <Mail className="text-[#00ff88]" size={22} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">Total Tickets</span>
+                      <span className="font-mono text-2xl font-bold text-white block">{totalCount}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4">
+                    <div className="bg-[#00ff88]/10 p-3.5 rounded-full border border-[#00ff88]/20">
+                      <Users className="text-[#00ff88]" size={22} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">Unique Senders</span>
+                      <span className="font-mono text-2xl font-bold text-white block">{uniqueSenders}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-6 shadow-xl relative overflow-hidden flex items-center gap-4">
+                    <div className="bg-[#6b7fa8]/10 p-3.5 rounded-full border border-[#6b7fa8]/20">
+                      <Shield className="text-[#6b7fa8]" size={22} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono text-[#6b7fa8] uppercase block">Platform Status</span>
+                      <span className="text-[#00ff88] font-mono text-sm font-bold bg-[#00ff88]/10 px-2 py-0.5 rounded border border-[#00ff88]/30 block w-fit mt-1 uppercase font-bold">100% Operational</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Tickets Listing Table */}
+            <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl overflow-hidden shadow-xl">
+              <div className="p-6 border-b border-[#1e2d4a]/50 flex justify-between items-center bg-[#020812]/20">
+                <h3 className="font-syne font-bold text-sm text-white">Live Support Tickets</h3>
+                <span className="text-[10px] font-mono text-[#00ff88] bg-[#00ff88]/10 px-2 py-0.5 rounded border border-[#00ff88]/20 animate-pulse uppercase font-bold">
+                  Sync Active
+                </span>
+              </div>
+
+              {(!adminData.contacts || adminData.contacts.length === 0) ? (
+                <div className="text-center p-12 font-mono text-xs text-[#6b7fa8]">
+                  No support tickets recorded in the database yet.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-xs font-mono">
+                    <thead>
+                      <tr className="bg-[#020812]/50 border-b border-[#1e2d4a]/50 text-[#6b7fa8] uppercase text-[10px] tracking-wider">
+                        <th className="p-4 pl-6">Sender Details</th>
+                        <th className="p-4">Subject</th>
+                        <th className="p-4 w-[40%]">Message / Inquiry</th>
+                        <th className="p-4">Submitted Date</th>
+                        <th className="p-4 pr-6 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#1e2d4a]/45">
+                      {adminData.contacts.map((c: any) => {
+                        const isRegistered = adminData.users?.some((u: any) => u.email.toLowerCase() === c.email.toLowerCase());
+
+                        return (
+                          <tr key={c.id} className="hover:bg-white/5 transition-all text-white">
+                            <td className="p-4 pl-6 font-semibold">
+                              <div className="space-y-1">
+                                <span className="text-white block font-sans font-bold text-sm">{c.name}</span>
+                                <span className="text-[#8b9fc0] block text-[11px] font-mono">{c.email}</span>
+                                {isRegistered ? (
+                                  <span className="text-[9px] text-[#00ff88] font-bold font-mono bg-[#00ff88]/10 px-1.5 py-0.5 rounded border border-[#00ff88]/20 block w-fit uppercase">
+                                    Registered Member
+                                  </span>
+                                ) : (
+                                  <span className="text-[9px] text-[#6b7fa8] font-bold font-mono bg-white/5 px-1.5 py-0.5 rounded border border-white/10 block w-fit uppercase">
+                                    Guest User
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-4 font-syne font-bold text-xs text-white">
+                              {c.subject}
+                            </td>
+                            <td className="p-4 text-[#8b9fc0] font-sans text-xs leading-relaxed whitespace-pre-wrap py-3.5 break-words">
+                              {c.message}
+                            </td>
+                            <td className="p-4 text-[#6b7fa8] font-mono whitespace-nowrap">
+                              {new Date(c.created_at).toLocaleString()}
+                            </td>
+                            <td className="p-4 pr-6 text-center">
+                              <button
+                                onClick={async () => {
+                                  if (!confirm('Are you sure you want to delete this contact ticket?')) return;
+                                  try {
+                                    const res = await fetch('/api/admin', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ action: 'deleteContact', contactId: c.id })
+                                    });
+                                    const responseData = await res.json();
+                                    if (res.ok && responseData.success) {
+                                      toast.success('Support ticket deleted successfully.');
+                                      await loadAdminData();
+                                    } else {
+                                      toast.error(responseData.error || 'Failed to delete support ticket.');
+                                    }
+                                  } catch (err) {
+                                    console.error('Delete contact error:', err);
+                                    toast.error('Network error during deletion.');
+                                  }
+                                }}
+                                className="bg-[#ff4444]/10 hover:bg-[#ff4444]/20 border border-[#ff4444]/30 hover:border-[#ff4444] text-[#ff4444] p-2 rounded-xl transition-all cursor-pointer inline-flex items-center justify-center animate-pulse hover:animate-none"
+                                title="Delete Support Ticket"
+                              >
+                                <Trash2 size={13} />
+                              </button>
                             </td>
                           </tr>
                         );

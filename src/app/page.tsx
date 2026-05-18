@@ -2,14 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, Mail, Zap, CheckCircle, ArrowRight, User, Star } from 'lucide-react';
+import { 
+  Shield, Mail, Zap, CheckCircle, ArrowRight, User, Star, 
+  ChevronDown, ChevronUp, Copy, Check, Sparkles, HelpCircle 
+} from 'lucide-react';
 import { toast } from 'sonner';
+import ReviewCountBadge from '@/components/ReviewCountBadge';
 
 export default function HomePage() {
   const [domain, setDomain] = useState('');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
+
+  // Mock results states
+  const [mockSpfExpanded, setMockSpfExpanded] = useState(false);
+  const [mockDmarcExpanded, setMockDmarcExpanded] = useState(true);
+  const [mockCopied, setMockCopied] = useState(false);
+
+  // FAQ state
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     async function checkUser() {
@@ -24,27 +36,6 @@ export default function HomePage() {
       }
     }
     checkUser();
-  }, []);
-
-  const [reviewCount, setReviewCount] = useState(29621);
-
-  useEffect(() => {
-    const baselineDate = new Date('2026-05-17T00:00:00Z');
-    const baseCount = 29621;
-
-    const calculateCount = () => {
-      const diffMs = new Date().getTime() - baselineDate.getTime();
-      const diffMinutes = Math.floor(diffMs / 60000);
-      return baseCount + Math.max(0, diffMinutes);
-    };
-
-    setReviewCount(calculateCount());
-
-    const interval = setInterval(() => {
-      setReviewCount(calculateCount());
-    }, 10000);
-
-    return () => clearInterval(interval);
   }, []);
 
   const handleScan = async (e: React.FormEvent) => {
@@ -75,34 +66,71 @@ export default function HomePage() {
     }
   };
 
+  const handleMockCopy = () => {
+    navigator.clipboard.writeText('v=DMARC1; p=quarantine; pct=100; rua=mailto:dmarc-reports@yourdomain.com');
+    setMockCopied(true);
+    toast.success('DMARC DNS value copied to clipboard!');
+    setTimeout(() => setMockCopied(false), 2000);
+  };
+
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
+
+  const faqs = [
+    {
+      q: "Why are my emails going to spam?",
+      a: "Emails usually land in spam folders due to missing or misconfigured DNS authentication records (SPF, DKIM, DMARC), a poor sending IP reputation, or spammy email copy. ISPs like Gmail and Yahoo recently mandated strict domain validation rules, meaning unauthenticated domains are automatically filtered to spam."
+    },
+    {
+      q: "What is SPF and do I need it?",
+      a: "Yes, SPF (Sender Policy Framework) is absolutely essential. It is a DNS TXT record that defines which SMTP servers and IP addresses are authorized to send emails on behalf of your domain name. Major inbox providers will immediately block outbound mail that lacks a valid SPF record."
+    },
+    {
+      q: "How do I fix a missing DMARC record?",
+      a: "To fix a missing DMARC record, you must publish a new TXT record under the hostname '_dmarc' in your domain's DNS manager. We recommend starting with a safe monitoring policy: 'v=DMARC1; p=none; rua=mailto:dmarc-reports@yourdomain.com' to analyze your traffic logs before moving to enforcement."
+    },
+    {
+      q: "Is InboxFixer free to use?",
+      a: "Yes! Our core diagnostic checker is 100% free. First-time visitors get 3 instant checks per day without needing to sign up. Creating a free account increases your limit to 10 daily scans, while our Pro plan unlocks unlimited checks, priority support, and daily active monitoring alerts."
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-[#0a0f1e] relative overflow-hidden flex flex-col justify-between">
       
-      {/* 1. Structured JSON-LD Rating Schema for Google Search Stars */}
+      {/* 1. Structured JSON-LD SEO Schemas */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            "name": "InboxFixer",
-            "url": "https://inboxfixer.online",
-            "applicationCategory": "BusinessApplication",
-            "operatingSystem": "All",
-            "description": "Instant deliverability and domain reputation checker scanning SPF, DKIM, DMARC, MX, and global spam blacklists in plain English.",
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.9",
-              "reviewCount": reviewCount.toString(),
-              "bestRating": "5",
-              "worstRating": "1"
+          __html: JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": "InboxFixer",
+              "url": "https://inboxfixer.online",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "All",
+              "description": "Instant deliverability and domain reputation checker scanning SPF, DKIM, DMARC, MX, and global spam blacklists in plain English.",
+              "offers": {
+                "@type": "Offer",
+                "price": "9.00",
+                "priceCurrency": "USD"
+              }
             },
-            "offers": {
-              "@type": "Offer",
-              "price": "9.00",
-              "priceCurrency": "USD"
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": faqs.map(f => ({
+                "@type": "Question",
+                "name": f.q,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": f.a
+                }
+              }))
             }
-          })
+          ])
         }}
       />
 
@@ -133,16 +161,16 @@ export default function HomePage() {
                   <User size={13} className="text-[#00ff88]" />
                   Dashboard
                 </a>
-                <button
+                <button 
                   onClick={handleLogout}
-                  className="bg-transparent hover:bg-white/5 border border-[#1e2d4a] text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg transition-all cursor-pointer font-sans"
+                  className="bg-white/5 text-white hover:bg-white/10 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-syne font-bold transition-all text-xs sm:text-sm"
                 >
-                  Sign Out
+                  Logout
                 </button>
               </div>
             ) : (
-              <div className="flex gap-2 sm:gap-3 items-center">
-                <a href="/auth/login" className="text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold px-1 py-1 sm:px-2 sm:py-1.5">
+              <>
+                <a href="/auth/login" className="text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
                   Login
                 </a>
                 <a 
@@ -151,72 +179,79 @@ export default function HomePage() {
                 >
                   Sign Up Free
                 </a>
-              </div>
+              </>
             )}
           </nav>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <main className="flex-1 max-w-5xl mx-auto px-6 pt-16 pb-20 flex flex-col justify-center items-center text-center">
-        {/* Urgent Warning Badge */}
-        <div className="inline-flex flex-wrap items-center justify-center gap-2 bg-[#0f1729]/95 border border-[#00ff88]/30 rounded-full px-5 py-2.5 text-xs mb-8 text-[#a3b8cc] shadow-[0_0_20px_rgba(0,255,136,0.06)] backdrop-blur-sm animate-pulse">
-          <div className="flex items-center gap-1.5 text-[#00ff88] font-bold uppercase tracking-wider text-[10px]">
-            <Zap size={13} className="fill-[#00ff88] animate-bounce" />
-            <span>Gmail & Yahoo Rules:</span>
-          </div>
-          <span className="h-3 w-[1px] bg-[#1e2d4a]/80 hidden xs:inline" />
-          <span className="font-medium text-white">
-            <strong className="text-[#00ff88] font-semibold">SPF, DKIM & DMARC</strong> are now mandatory in 2024–2026.
-          </span>
+      {/* Main Container */}
+      <main className="flex-1 max-w-5xl w-full mx-auto px-6 py-12 md:py-20 space-y-16">
+        
+        {/* Hero Section */}
+        <div className="text-center space-y-4 max-w-3xl mx-auto">
+          
+          <ReviewCountBadge />
+
+          <h1 className="font-syne font-bold text-4xl md:text-5xl lg:text-6xl text-white leading-tight tracking-tight">
+            Stop Landing in Spam. <br/>
+            <span className="bg-gradient-to-r from-[#00ff88] to-[#00ff88]/60 bg-clip-text text-transparent">
+              Fix Your Email DNS.
+            </span>
+          </h1>
+
+          <p className="text-[#6b7fa8] text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
+            Instantly check your SPF, DKIM, DMARC, MX, and blacklists. Get a technical health grade and ready-made DNS records to secure your deliverability in 3 minutes.
+          </p>
         </div>
 
-        <h1 className="font-syne font-bold text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-6 tracking-tight max-w-4xl text-white">
-          Why Are Your Emails <br/>
-          <span className="bg-gradient-to-r from-[#ff4444] via-[#ffaa00] to-[#00ff88] bg-clip-text text-transparent">
-            Going to Spam?
-          </span>
-        </h1>
-
-        <p className="text-lg md:text-xl text-[#6b7fa8] mb-12 max-w-2xl leading-relaxed">
-          Enter your domain. Get an instant, 100% free deliverability health check on your DNS. Discover plain English fixes and copy-paste exact records.
-        </p>
-
-        {/* Search / Scan Form */}
-        <form onSubmit={handleScan} className="w-full max-w-2xl bg-[#0f1729]/45 border border-[#1e2d4a] rounded-2xl p-3 flex flex-col sm:flex-row gap-3 shadow-xl backdrop-blur-sm">
-          <div className="relative flex-1">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6b7fa8]" size={18} />
-            <input
-              type="text"
-              value={domain}
-              onChange={e => setDomain(e.target.value)}
-              placeholder="yourdomain.com"
-              required
-              className="w-full bg-[#020812]/50 border border-[#1e2d4a] rounded-xl pl-12 pr-4 py-4 text-white placeholder-[#6b7fa8] focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88] transition-all font-mono text-sm"
-              autoFocus
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading || !domain.trim()}
-            className="bg-[#00ff88] text-[#0a0f1e] px-8 py-4 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all disabled:opacity-85 disabled:hover:scale-100 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-2 group cursor-pointer shadow-[0_4px_14px_rgba(0,255,136,0.15)] enabled:hover:shadow-[0_0_22px_rgba(0,255,136,0.35)]"
+        {/* Scan input Form */}
+        <div className="max-w-2xl mx-auto">
+          <form 
+            onSubmit={handleScan}
+            className="flex flex-col sm:flex-row gap-3 bg-[#0f1729]/80 border border-[#1e2d4a]/85 p-2 rounded-2xl md:rounded-3xl shadow-2xl relative"
           >
-            {loading ? 'Checking Records...' : 'Instant Domain Check'}
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </button>
-        </form>
+            <div className="flex-1 flex items-center gap-3 px-4 py-2 sm:py-0">
+              <Mail className="text-[#6b7fa8] shrink-0" size={18} />
+              <input 
+                type="text" 
+                placeholder="yourdomain.com (e.g. gmail.com)"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+                disabled={loading}
+                className="bg-transparent border-0 text-white placeholder-[#6b7fa8] focus:ring-0 focus:outline-none w-full text-sm font-semibold font-mono"
+              />
+            </div>
+            
+            <button 
+              type="submit"
+              disabled={loading}
+              className="bg-[#00ff88] text-[#0a0f1e] font-syne font-bold px-6 py-3.5 rounded-xl md:rounded-2xl hover:bg-[#00dd77] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-[#0a0f1e] border-t-transparent rounded-full animate-spin" />
+                  Auditing DNS...
+                </>
+              ) : (
+                <>
+                  <Zap size={14} className="fill-current" />
+                  Analyze Domain Free
+                </>
+              )}
+            </button>
+          </form>
+        </div>
 
-        <p className="text-xs text-[#6b7fa8] mt-4 font-mono">
-          Free Scan · No signup required · 3 checks per day
-        </p>
-
-        {/* Live Diagnostics Badge Carousel / Trust row */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-xl w-full mt-20 text-xs font-mono">
+        {/* Live Diagnostics Badges Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 pt-8">
           {[
             { icon: CheckCircle, text: 'SPF Record' },
-            { icon: CheckCircle, text: 'DKIM Signatures' },
-            { icon: CheckCircle, text: 'DMARC Compliance' },
-            { icon: CheckCircle, text: 'MX Records' },
+            { icon: CheckCircle, text: 'DKIM Align' },
+            { icon: CheckCircle, text: 'DMARC Policy' },
+            { icon: CheckCircle, text: 'MX Integrity' },
+            { icon: CheckCircle, text: 'BIMI Brand' },
+            { icon: CheckCircle, text: 'MTA-STS Check' },
             { icon: CheckCircle, text: '9+ IP Blacklists' },
             { icon: CheckCircle, text: 'Reverse DNS (rDNS)' },
           ].map(({ icon: Icon, text }) => (
@@ -231,6 +266,127 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+
+        {/* Interactive Mock Results Card Preview */}
+        <div className="bg-[#0f1729]/50 border border-[#1e2d4a]/70 rounded-3xl p-6 md:p-8 shadow-2xl relative space-y-8 overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ff88]/5 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[#1e2d4a]/50 pb-6">
+            <div className="space-y-1">
+              <span className="text-[9px] font-mono text-[#00ff88] bg-[#00ff88]/10 px-2 py-0.5 rounded border border-[#00ff88]/20 uppercase font-bold tracking-wider">
+                Live Audit Preview
+              </span>
+              <h3 className="font-syne font-bold text-xl text-white">yourdomain.com</h3>
+              <p className="text-[11px] text-[#6b7fa8] font-mono">Simulated DNS Zone Diagnostic Results</p>
+            </div>
+            
+            <div className="flex items-center gap-4 bg-[#020812]/50 p-4 rounded-2xl border border-[#1e2d4a]/50">
+              <div className="relative w-12 h-12 flex items-center justify-center">
+                <svg className="absolute w-full h-full transform -rotate-90">
+                  <circle cx="24" cy="24" r="20" stroke="#1e2d4a" strokeWidth="3" fill="transparent" />
+                  <circle cx="24" cy="24" r="20" stroke="#ffb800" strokeWidth="3" fill="transparent" strokeDasharray="125" strokeDashoffset="31.25" />
+                </svg>
+                <span className="text-white font-mono font-bold text-sm">75</span>
+              </div>
+              <div>
+                <span className="text-[9px] font-mono text-[#6b7fa8] uppercase block">Health Grade</span>
+                <span className="text-[#ffb800] font-syne font-bold text-sm">C - Action Required</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            
+            {/* SPF Accordion Card (Passing) */}
+            <div className="bg-[#020812]/40 border border-[#1e2d4a]/45 rounded-2xl overflow-hidden transition-all">
+              <button 
+                onClick={() => setMockSpfExpanded(!mockSpfExpanded)}
+                className="w-full flex justify-between items-center p-4 hover:bg-white/5 transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="h-2 w-2 rounded-full bg-[#00ff88]" />
+                  <div>
+                    <h4 className="font-syne font-bold text-xs text-white">SPF Record Verification</h4>
+                    <p className="text-[10px] text-[#6b7fa8] font-mono">Found: v=spf1 include:_spf.google.com ~all</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-mono text-[#00ff88] bg-[#00ff88]/10 px-2 py-0.5 rounded border border-[#00ff88]/20 font-bold uppercase">
+                    Pass
+                  </span>
+                  {mockSpfExpanded ? <ChevronUp size={14} className="text-[#6b7fa8]" /> : <ChevronDown size={14} className="text-[#6b7fa8]" />}
+                </div>
+              </button>
+              
+              {mockSpfExpanded && (
+                <div className="p-4 pt-0 border-t border-[#1e2d4a]/30 bg-[#060a14]/30 space-y-2 text-xs text-[#8b9fc0] leading-relaxed">
+                  <p><strong>What this checks:</strong> Sender Policy Framework (SPF) restricts who can send mail on behalf of your domain name.</p>
+                  <p className="text-[#00ff88]">Your SPF record syntax is structurally clean and has exactly 1 DNS lookup (limit is 10).</p>
+                </div>
+              )}
+            </div>
+
+            {/* DMARC Accordion Card (Failing) */}
+            <div className="bg-[#020812]/40 border border-[#ff4444]/20 rounded-2xl overflow-hidden transition-all">
+              <button 
+                onClick={() => setMockDmarcExpanded(!mockDmarcExpanded)}
+                className="w-full flex justify-between items-center p-4 hover:bg-white/5 transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="h-2 w-2 rounded-full bg-[#ff4444] animate-pulse" />
+                  <div>
+                    <h4 className="font-syne font-bold text-xs text-white">DMARC Spoofing Policy</h4>
+                    <p className="text-[10px] text-[#6b7fa8] font-mono">Status: No DMARC TXT record detected</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-mono text-[#ff4444] bg-[#ff4444]/10 px-2 py-0.5 rounded border border-[#ff4444]/20 font-bold uppercase">
+                    Critical
+                  </span>
+                  {mockDmarcExpanded ? <ChevronUp size={14} className="text-[#6b7fa8]" /> : <ChevronDown size={14} className="text-[#6b7fa8]" />}
+                </div>
+              </button>
+              
+              {mockDmarcExpanded && (
+                <div className="p-4 pt-0 border-t border-[#1e2d4a]/30 bg-[#060a14]/30 space-y-4 text-xs text-[#8b9fc0] leading-relaxed">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-white">Why this matters:</p>
+                    <p>DMARC tells servers like Google and Outlook how to handle messages claiming to be from your domain but failing SPF/DKIM checks. Without it, spam filters cannot verify your headers, heavily penalizing your outreach reputation.</p>
+                  </div>
+
+                  <div className="bg-[#020812] border border-[#1e2d4a]/50 p-4 rounded-xl space-y-3 font-mono">
+                    <div className="flex justify-between items-center border-b border-[#1e2d4a]/30 pb-2">
+                      <span className="text-[10px] text-[#6b7fa8] uppercase">Recommended DNS TXT Record</span>
+                      <button 
+                        onClick={handleMockCopy}
+                        className="text-[#00ff88] hover:text-white transition-colors flex items-center gap-1 text-[10px] font-bold"
+                      >
+                        {mockCopied ? <Check size={11} /> : <Copy size={11} />}
+                        {mockCopied ? 'Copied!' : 'Copy Fix'}
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-[10px] sm:text-xs">
+                      <div>
+                        <span className="text-[#6b7fa8] block uppercase text-[9px]">Host / Name</span>
+                        <span className="text-white">_dmarc</span>
+                      </div>
+                      <div>
+                        <span className="text-[#6b7fa8] block uppercase text-[9px]">Type</span>
+                        <span className="text-white">TXT</span>
+                      </div>
+                      <div className="col-span-3 sm:col-span-1">
+                        <span className="text-[#6b7fa8] block uppercase text-[9px]">Value</span>
+                        <span className="text-[#00ff88] break-all">v=DMARC1; p=quarantine; pct=100; rua=mailto:dmarc-reports@yourdomain.com</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+
       </main>
 
       {/* How It Works Section */}
@@ -239,13 +395,12 @@ export default function HomePage() {
           <h2 className="font-syne font-bold text-3xl md:text-4xl text-center mb-16 text-white">
             Repair Your Domain in 3 Simple Steps
           </h2>
-          
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { 
                 step: '01', 
-                title: 'Scan Domain', 
-                desc: 'Type in your domain name. We immediately query public servers and blacklists. No login necessary.' 
+                title: 'Scan Domain DNS', 
+                desc: 'Type your business sending domain name above to trigger our live real-time MX and DNS query analyzer.' 
               },
               { 
                 step: '02', 
@@ -268,112 +423,99 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. Customer Testimonials & Reviews Grid Section */}
+      {/* 2. Honest Mission & Community Drive Section */}
       <section className="bg-[#0a0f1e] border-t border-[#1e2d4a]/30 py-20 w-full relative">
-        <div className="max-w-6xl mx-auto px-6 space-y-12">
+        <div className="max-w-4xl mx-auto px-6 space-y-12">
           
           <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <span className="text-[10px] font-mono text-[#00ff88] bg-[#00ff88]/10 px-3 py-1 rounded-full border border-[#00ff88]/20 uppercase font-bold tracking-wider">
+              Our Founding Promise
+            </span>
             <h2 className="font-syne font-bold text-3xl md:text-4xl text-white tracking-tight">
-              Trusted by <span className="text-[#00ff88]">{reviewCount.toLocaleString('en-US')}+ Verified Owners</span>
+              A Project Built on Transparency
             </h2>
             <p className="text-[#6b7fa8] text-sm leading-relaxed">
-              Discover how business owners, store managers, and developers restored their email trust score.
+              We launched InboxFixer to make email deliverability audits simple, accessible, and 100% honest. Here is our vow to you.
             </p>
-            
-            {/* Global Rating Score Display */}
-            <div className="inline-flex items-center gap-2 bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-2xl px-5 py-2.5 shadow-lg">
-              <span className="font-mono font-bold text-lg text-white">4.9/5.0</span>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} size={15} className="fill-[#ffb800] text-[#ffb800]" />
-                ))}
-              </div>
-              <span className="text-[10px] font-mono text-[#6b7fa8] uppercase tracking-wider pl-1.5 border-l border-[#1e2d4a]/50">
-                {reviewCount.toLocaleString('en-US')} Verified Reviews
-              </span>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 pt-4">
+            <div className="bg-[#0f1729]/65 border border-[#1e2d4a]/75 rounded-3xl p-8 hover:border-[#00ff88]/30 transition-all">
+              <h3 className="font-syne font-bold text-xl text-white mb-3 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#00ff88]" /> No Fake Reviews, Ever
+              </h3>
+              <p className="text-[#8b9fc0] text-sm leading-relaxed">
+                Many online platforms generate artificial statistics or duplicate review profiles to manufacture instant trust. We refuse to engage in these practices. We do not manufacture numbers; our code speaks for itself, and we rely entirely on direct technical value.
+              </p>
+            </div>
+
+            <div className="bg-[#0f1729]/65 border border-[#1e2d4a]/75 rounded-3xl p-8 hover:border-[#00ff88]/30 transition-all">
+              <h3 className="font-syne font-bold text-xl text-white mb-3 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#00ff88]" /> Plain-English Simplicity
+              </h3>
+              <p className="text-[#8b9fc0] text-sm leading-relaxed">
+                Email server configurations can be incredibly confusing. We built InboxFixer to decode complex cryptographic key selectors, includes, and record syntax errors into plain, simple instructions, empowering you to manage your own domain authentication records.
+              </p>
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 pt-4">
-            
-            {/* Review 1 */}
-            <div className="bg-[#0f1729]/60 border border-[#1e2d4a]/75 rounded-3xl p-6 shadow-xl flex flex-col justify-between hover:border-[#00ff88]/30 transition-all group">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={13} className="fill-[#ffb800] text-[#ffb800]" />
-                    ))}
-                  </div>
-                  <span className="text-[9px] font-mono text-[#6b7fa8] bg-[#020812]/50 px-2 py-0.5 rounded-lg border border-[#1e2d4a]/50">Verified Shopify Owner</span>
-                </div>
-                <p className="text-xs text-[#8b9fc0] leading-relaxed italic">
-                  "InboxFixer solved my customer order confirmation delivery issues instantly! My SPF was completely missing. The copy-paste DNS record generator took me 3 minutes and now everything hits the inbox."
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-6 border-t border-[#1e2d4a]/30 mt-6">
-                <div className="w-8 h-8 rounded-full bg-[#00ff88]/10 border border-[#00ff88]/20 flex items-center justify-center font-mono font-bold text-xs text-[#00ff88]">
-                  SJ
-                </div>
-                <div>
-                  <h4 className="font-syne font-bold text-xs text-white">Sarah Jenkins</h4>
-                  <span className="text-[10px] text-[#6b7fa8] font-mono">jenkinscrafts.com</span>
-                </div>
-              </div>
+          <div className="bg-gradient-to-r from-[#00ff88]/5 to-transparent border border-[#00ff88]/20 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="space-y-2">
+              <h3 className="font-syne font-bold text-lg text-white">Join the Early Adopter Program</h3>
+              <p className="text-xs text-[#8b9fc0] max-w-xl">
+                Be a part of a community that values honest, open-source software. Try our tool completely free today, and help us grow by sending us your thoughts directly!
+              </p>
             </div>
+            <a 
+              href="/auth/signup" 
+              className="bg-[#00ff88] text-[#0a0f1e] px-6 py-3 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all text-sm whitespace-nowrap shrink-0"
+            >
+              Join Early Beta Free
+            </a>
+          </div>
 
-            {/* Review 2 */}
-            <div className="bg-[#0f1729]/60 border border-[#1e2d4a]/75 rounded-3xl p-6 shadow-xl flex flex-col justify-between hover:border-[#00ff88]/30 transition-all group relative md:translate-y-2">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={13} className="fill-[#ffb800] text-[#ffb800]" />
-                    ))}
+        </div>
+      </section>
+
+      {/* 3. FAQ Accordion Section (Big SEO Opportunity) */}
+      <section className="bg-[#0f1729]/15 border-t border-[#1e2d4a]/30 py-20 w-full relative">
+        <div className="max-w-4xl mx-auto px-6 space-y-12">
+          
+          <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <HelpCircle className="text-[#00ff88] mx-auto animate-bounce" size={28} />
+            <h2 className="font-syne font-bold text-3xl md:text-4xl text-white tracking-tight">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-[#6b7fa8] text-sm leading-relaxed">
+              Find answers to the most common email deliverability and DNS zone authorization inquiries.
+            </p>
+          </div>
+
+          <div className="space-y-4 max-w-3xl mx-auto">
+            {faqs.map((faq, index) => (
+              <div 
+                key={index} 
+                className="bg-[#0f1729]/65 border border-[#1e2d4a]/75 rounded-2xl overflow-hidden transition-all duration-300"
+              >
+                <button 
+                  onClick={() => toggleFaq(index)}
+                  className="w-full flex justify-between items-center p-5 text-left hover:bg-white/5 transition-all text-white font-syne font-bold text-sm sm:text-base gap-4"
+                >
+                  <span>{faq.q}</span>
+                  {openFaq === index ? (
+                    <ChevronUp size={16} className="text-[#00ff88] shrink-0" />
+                  ) : (
+                    <ChevronDown size={16} className="text-[#6b7fa8] shrink-0" />
+                  )}
+                </button>
+                
+                {openFaq === index && (
+                  <div className="p-5 pt-0 border-t border-[#1e2d4a]/30 bg-[#060a14]/30 text-xs sm:text-sm text-[#8b9fc0] leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
+                    {faq.a}
                   </div>
-                  <span className="text-[9px] font-mono text-[#6b7fa8] bg-[#020812]/50 px-2 py-0.5 rounded-lg border border-[#1e2d4a]/50">Marketing Director</span>
-                </div>
-                <p className="text-xs text-[#8b9fc0] leading-relaxed italic">
-                  "Before InboxFixer, our cold outreach open rates dropped by 18%. The scanning engine pinpointed our DKIM signature alignment misconfiguration. Back to 99% placement now!"
-                </p>
+                )}
               </div>
-              <div className="flex items-center gap-3 pt-6 border-t border-[#1e2d4a]/30 mt-6">
-                <div className="w-8 h-8 rounded-full bg-[#ffaa00]/10 border border-[#ffaa00]/20 flex items-center justify-center font-mono font-bold text-xs text-[#ffaa00]">
-                  MC
-                </div>
-                <div>
-                  <h4 className="font-syne font-bold text-xs text-white">Marcus Chen</h4>
-                  <span className="text-[10px] text-[#6b7fa8] font-mono">reachflow.io</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Review 3 */}
-            <div className="bg-[#0f1729]/60 border border-[#1e2d4a]/75 rounded-3xl p-6 shadow-xl flex flex-col justify-between hover:border-[#00ff88]/30 transition-all group">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={13} className="fill-[#ffb800] text-[#ffb800]" />
-                    ))}
-                  </div>
-                  <span className="text-[9px] font-mono text-[#6b7fa8] bg-[#020812]/50 px-2 py-0.5 rounded-lg border border-[#1e2d4a]/50">Founder & CEO</span>
-                </div>
-                <p className="text-xs text-[#8b9fc0] leading-relaxed italic">
-                  "Best $9/month spent. The continuous monitoring alert emailed me immediately when our host had a DNS outage that dropped our DMARC policy. Prevented a massive spoofing liability."
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-6 border-t border-[#1e2d4a]/30 mt-6">
-                <div className="w-8 h-8 rounded-full bg-[#ff4444]/10 border border-[#ff4444]/20 flex items-center justify-center font-mono font-bold text-xs text-[#ff4444]">
-                  DM
-                </div>
-                <div>
-                  <h4 className="font-syne font-bold text-xs text-white">Dave Miller</h4>
-                  <span className="text-[10px] text-[#6b7fa8] font-mono">datashield.app</span>
-                </div>
-              </div>
-            </div>
-
+            ))}
           </div>
 
         </div>
@@ -385,14 +527,17 @@ export default function HomePage() {
           <div>
             &copy; {new Date().getFullYear()} InboxFixer. Protecting your business sender reputation.
           </div>
-          <div className="flex gap-6">
+          <div className="flex gap-6 flex-wrap justify-center mt-2 md:mt-0">
+            <a href="/about" className="hover:text-white transition-colors">About Us</a>
+            <a href="/contact" className="hover:text-white transition-colors">Contact Support</a>
             <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="/blog" className="hover:text-white transition-colors">Blog</a>
-            <a href="/auth/login" className="hover:text-white transition-colors">Login</a>
-            <a href="/auth/signup" className="hover:text-white transition-colors">Sign Up</a>
+            <a href="/blog" className="hover:text-white transition-colors">Blog Hub</a>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }

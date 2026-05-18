@@ -169,13 +169,8 @@ export default async function BlogDetailPage({ params }: Props) {
             </p>
           </div>
           <div className="flex flex-col items-center gap-2.5 shrink-0">
-            <div className="flex items-center gap-1.5">
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} size={13} className="fill-[#ffb800] text-[#ffb800]" />
-                ))}
-              </div>
-              <span className="text-xs font-mono font-bold text-white">4.9/5.0 Stars</span>
+            <div className="flex items-center gap-1.5 bg-[#00ff88]/10 px-3 py-1 rounded border border-[#00ff88]/20">
+              <span className="text-[10px] font-mono font-bold text-[#00ff88] uppercase tracking-wider">100% Free Diagnostics</span>
             </div>
             <a 
               href="/" 
@@ -194,11 +189,13 @@ export default async function BlogDetailPage({ params }: Props) {
           <div>
             &copy; {new Date().getFullYear()} InboxFixer. Protecting your business sender reputation.
           </div>
-          <div className="flex gap-6">
+          <div className="flex gap-6 flex-wrap justify-center mt-2 md:mt-0">
+            <a href="/about" className="hover:text-white transition-colors">About Us</a>
+            <a href="/contact" className="hover:text-white transition-colors">Contact Support</a>
             <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="/blog" className="hover:text-white transition-colors">Blog</a>
-            <a href="/auth/login" className="hover:text-white transition-colors">Login</a>
-            <a href="/auth/signup" className="hover:text-white transition-colors">Sign Up</a>
+            <a href="/blog" className="hover:text-white transition-colors">Blog Hub</a>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
           </div>
         </div>
       </footer>

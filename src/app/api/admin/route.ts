@@ -8,7 +8,8 @@ import {
   getScans,
   getBlogs, writeBlogs,
   getVisits,
-  getFeedbacks
+  getFeedbacks,
+  getContacts, writeContacts
 } from '@/lib/db';
 import { sendEmail } from '@/lib/mail';
 import { updateStaticSitemap } from '@/lib/sitemap';
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest) {
     const blogs = getBlogs().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     const visits = getVisits();
     const feedbacks = getFeedbacks().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const contacts = getContacts().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     return NextResponse.json({
       success: true,
@@ -44,7 +46,8 @@ export async function GET(req: NextRequest) {
       settings,
       blogs,
       visits,
-      feedbacks
+      feedbacks,
+      contacts
     });
 
   } catch (err: any) {
@@ -272,6 +275,19 @@ export async function POST(req: NextRequest) {
       writeBlogs(filtered);
       updateStaticSitemap();
       return NextResponse.json({ success: true, message: 'Blog post deleted successfully.' });
+    }
+
+    if (action === 'deleteContact') {
+      const { contactId } = body;
+
+      if (!contactId) {
+        return NextResponse.json({ error: 'Contact ID is required.' }, { status: 400 });
+      }
+
+      const contacts = getContacts();
+      const filtered = contacts.filter(c => c.id !== contactId);
+      writeContacts(filtered);
+      return NextResponse.json({ success: true, message: 'Contact message deleted successfully.' });
     }
 
     return NextResponse.json({ error: 'Invalid action.' }, { status: 400 });

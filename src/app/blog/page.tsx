@@ -160,11 +160,13 @@ export default async function BlogHubPage() {
           <div>
             &copy; {new Date().getFullYear()} InboxFixer. Protecting your business sender reputation.
           </div>
-          <div className="flex gap-6">
+          <div className="flex gap-6 flex-wrap justify-center mt-2 md:mt-0">
+            <a href="/about" className="hover:text-white transition-colors">About Us</a>
+            <a href="/contact" className="hover:text-white transition-colors">Contact Support</a>
             <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="/blog" className="hover:text-white transition-colors">Blog</a>
-            <a href="/auth/login" className="hover:text-white transition-colors">Login</a>
-            <a href="/auth/signup" className="hover:text-white transition-colors">Sign Up</a>
+            <a href="/blog" className="hover:text-white transition-colors">Blog Hub</a>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
           </div>
         </div>
       </footer>

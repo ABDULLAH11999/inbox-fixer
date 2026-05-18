@@ -14,6 +14,7 @@ const BLOGS_FILE = path.join(DB_DIR, 'blogs.json');
 const VISITS_FILE = path.join(DB_DIR, 'visits.json');
 const FEEDBACKS_FILE = path.join(DB_DIR, 'feedbacks.json');
 const GUEST_SCANS_FILE = path.join(DB_DIR, 'guest_scans.json');
+const CONTACTS_FILE = path.join(DB_DIR, 'contacts.json');
 
 // Helper to ensure directory and files exist
 function ensureDB() {
@@ -205,6 +206,7 @@ function ensureDB() {
   if (!fs.existsSync(VISITS_FILE)) fs.writeFileSync(VISITS_FILE, JSON.stringify([], null, 2));
   if (!fs.existsSync(FEEDBACKS_FILE)) fs.writeFileSync(FEEDBACKS_FILE, JSON.stringify([], null, 2));
   if (!fs.existsSync(GUEST_SCANS_FILE)) fs.writeFileSync(GUEST_SCANS_FILE, JSON.stringify([], null, 2));
+  if (!fs.existsSync(CONTACTS_FILE)) fs.writeFileSync(CONTACTS_FILE, JSON.stringify([], null, 2));
 }
 
 // Read/Write operations
@@ -253,6 +255,9 @@ export function writeFeedbacks(data: any[]) { writeTable(FEEDBACKS_FILE, data); 
 
 export function getGuestScans() { return readTable<any>(GUEST_SCANS_FILE); }
 export function writeGuestScans(data: any[]) { writeTable(GUEST_SCANS_FILE, data); }
+
+export function getContacts() { return readTable<any>(CONTACTS_FILE); }
+export function writeContacts(data: any[]) { writeTable(CONTACTS_FILE, data); }
 
 export function getSettings(): any {
   ensureDB();

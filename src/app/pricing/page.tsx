@@ -268,8 +268,18 @@ export default function PricingPage() {
 
       {/* Footer */}
       <footer className="border-t border-[#1e2d4a]/20 bg-[#060a14] py-8 text-center text-xs text-[#6b7fa8] mt-12">
-        <div className="max-w-7xl mx-auto px-6">
-          &copy; {new Date().getFullYear()} InboxFixer. Guaranteed inbox deliverability checks.
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            &copy; {new Date().getFullYear()} InboxFixer. Protecting your business sender reputation.
+          </div>
+          <div className="flex gap-6 flex-wrap justify-center mt-2 md:mt-0">
+            <a href="/about" className="hover:text-white transition-colors">About Us</a>
+            <a href="/contact" className="hover:text-white transition-colors">Contact Support</a>
+            <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
+            <a href="/blog" className="hover:text-white transition-colors">Blog Hub</a>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+          </div>
         </div>
       </footer>
     </div>
