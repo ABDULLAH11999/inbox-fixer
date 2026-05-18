@@ -1865,6 +1865,7 @@ export default function AdminPage() {
                       <tr className="bg-[#020812]/50 border-b border-[#1e2d4a]/50 text-[#6b7fa8] uppercase text-[10px] tracking-wider">
                         <th className="p-4 pl-6">IP Address</th>
                         <th className="p-4">Visitor Path</th>
+                        <th className="p-4">Country</th>
                         <th className="p-4">Visitor Type</th>
                         <th className="p-4 pr-6 text-right font-mono">Log timestamp</th>
                       </tr>
@@ -1876,6 +1877,7 @@ export default function AdminPage() {
                             {v.ip === '::1' || v.ip === '127.0.0.1' ? 'localhost (127.0.0.1)' : v.ip}
                           </td>
                           <td className="p-4 text-[#8b9fc0] font-mono">{v.path}</td>
+                          <td className="p-4 text-white font-mono">{v.country || 'Unknown'}</td>
                           <td className="p-4">
                             {v.revisited ? (
                               <span className="px-2 py-0.5 rounded text-[10px] font-bold text-[#00ff88] bg-[#00ff88]/10 border border-[#00ff88]/20">

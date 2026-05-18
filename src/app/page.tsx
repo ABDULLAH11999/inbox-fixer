@@ -86,7 +86,7 @@ export default function HomePage() {
             "@context": "https://schema.org",
             "@type": "WebApplication",
             "name": "InboxFixer",
-            "url": "https://inboxfixer.com",
+            "url": "https://inboxfixer.online",
             "applicationCategory": "BusinessApplication",
             "operatingSystem": "All",
             "description": "Instant deliverability and domain reputation checker scanning SPF, DKIM, DMARC, MX, and global spam blacklists in plain English.",

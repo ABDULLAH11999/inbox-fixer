@@ -13,6 +13,7 @@ const OTPS_FILE = path.join(DB_DIR, 'otps.json');
 const BLOGS_FILE = path.join(DB_DIR, 'blogs.json');
 const VISITS_FILE = path.join(DB_DIR, 'visits.json');
 const FEEDBACKS_FILE = path.join(DB_DIR, 'feedbacks.json');
+const GUEST_SCANS_FILE = path.join(DB_DIR, 'guest_scans.json');
 
 // Helper to ensure directory and files exist
 function ensureDB() {
@@ -34,12 +35,12 @@ function ensureDB() {
   if (!fs.existsSync(SETTINGS_FILE)) {
     const defaultSettings = {
       stripe_mode: 'test', // 'test' | 'live'
-      smtp_receiver_email: 'admin@inboxfixer.com',
+      smtp_receiver_email: 'admin@inboxfixer.online',
       seo: {
         site_title: 'InboxFixer - Free Email Deliverability & SPF DMARC Spam Checker',
         site_desc: 'Instantly check your SPF, DKIM, DMARC, MX, and blacklist records to stop emails from landing in the spam folder.',
-        canonical_url: 'https://inboxfixer.com',
-        header_tags: '<!-- Google Search Rich Snippets Organization Schema -->\n<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Organization",\n  "name": "InboxFixer",\n  "url": "https://inboxfixer.com",\n  "logo": "https://inboxfixer.com/inboxfixer_profile_logo.png",\n  "sameAs": [\n    "https://twitter.com/inboxfixer",\n    "https://github.com/inboxfixer"\n  ]\n}\n</script>\n<meta name="google-site-verification" content="inboxfixer-verification-placeholder-code" />',
+        canonical_url: 'https://inboxfixer.online',
+        header_tags: '<!-- Google Search Rich Snippets Organization Schema -->\n<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Organization",\n  "name": "InboxFixer",\n  "url": "https://inboxfixer.online",\n  "logo": "https://inboxfixer.online/inboxfixer_profile_logo.png",\n  "sameAs": [\n    "https://twitter.com/inboxfixer",\n    "https://github.com/inboxfixer"\n  ]\n}\n</script>\n<meta name="google-site-verification" content="inboxfixer-verification-placeholder-code" />',
         footer_tags: '<!-- Custom InboxFixer Console Analytics SDK -->\n<script>\n  console.log("%c🚀 InboxFixer SEO Engine successfully loaded!", "color: #00ff88; font-weight: bold; font-size: 14px;");\n</script>'
       }
     };
@@ -203,6 +204,7 @@ function ensureDB() {
   if (!fs.existsSync(OTPS_FILE)) fs.writeFileSync(OTPS_FILE, JSON.stringify([], null, 2));
   if (!fs.existsSync(VISITS_FILE)) fs.writeFileSync(VISITS_FILE, JSON.stringify([], null, 2));
   if (!fs.existsSync(FEEDBACKS_FILE)) fs.writeFileSync(FEEDBACKS_FILE, JSON.stringify([], null, 2));
+  if (!fs.existsSync(GUEST_SCANS_FILE)) fs.writeFileSync(GUEST_SCANS_FILE, JSON.stringify([], null, 2));
 }
 
 // Read/Write operations
@@ -248,6 +250,9 @@ export function writeVisits(data: any[]) { writeTable(VISITS_FILE, data); }
 
 export function getFeedbacks() { return readTable<any>(FEEDBACKS_FILE); }
 export function writeFeedbacks(data: any[]) { writeTable(FEEDBACKS_FILE, data); }
+
+export function getGuestScans() { return readTable<any>(GUEST_SCANS_FILE); }
+export function writeGuestScans(data: any[]) { writeTable(GUEST_SCANS_FILE, data); }
 
 export function getSettings(): any {
   ensureDB();

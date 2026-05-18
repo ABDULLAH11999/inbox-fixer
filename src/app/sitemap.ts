@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getBlogs } from '@/lib/db';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://inboxfixer.com';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://inboxfixer.online';
 
   // Base static routes
   const routes: MetadataRoute.Sitemap = [

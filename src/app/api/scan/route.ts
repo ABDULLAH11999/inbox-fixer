@@ -45,7 +45,10 @@ export async function POST(req: NextRequest) {
       console.warn('Local session auth check failed, treating as guest:', e);
     }
 
-    const identifier = user?.id || req.headers.get('x-forwarded-for') || 'anonymous';
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 
+                     req.headers.get('x-real-ip') || 
+                     '127.0.0.1';
+    const identifier = user?.id || clientIp;
 
     // Check rate limit
     const { allowed, remaining } = await checkRateLimit(identifier, tier);
