@@ -244,7 +244,7 @@ export default function HomePage() {
         </div>
 
         {/* Live Diagnostics Badges Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 pt-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8">
           {[
             { icon: CheckCircle, text: 'SPF Record' },
             { icon: CheckCircle, text: 'DKIM Align' },
@@ -439,38 +439,29 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 pt-4">
+          <div className="max-w-2xl mx-auto pt-4">
             <div className="bg-[#0f1729]/65 border border-[#1e2d4a]/75 rounded-3xl p-8 hover:border-[#00ff88]/30 transition-all">
-              <h3 className="font-syne font-bold text-xl text-white mb-3 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#00ff88]" /> No Fake Reviews, Ever
-              </h3>
-              <p className="text-[#8b9fc0] text-sm leading-relaxed">
-                Many online platforms generate artificial statistics or duplicate review profiles to manufacture instant trust. We refuse to engage in these practices. We do not manufacture numbers; our code speaks for itself, and we rely entirely on direct technical value.
-              </p>
-            </div>
-
-            <div className="bg-[#0f1729]/65 border border-[#1e2d4a]/75 rounded-3xl p-8 hover:border-[#00ff88]/30 transition-all">
-              <h3 className="font-syne font-bold text-xl text-white mb-3 flex items-center gap-2">
+              <h3 className="font-syne font-bold text-xl text-white mb-3 flex items-center gap-2 justify-center sm:justify-start">
                 <span className="h-2 w-2 rounded-full bg-[#00ff88]" /> Plain-English Simplicity
               </h3>
-              <p className="text-[#8b9fc0] text-sm leading-relaxed">
+              <p className="text-[#8b9fc0] text-sm leading-relaxed text-center sm:text-left">
                 Email server configurations can be incredibly confusing. We built InboxFixer to decode complex cryptographic key selectors, includes, and record syntax errors into plain, simple instructions, empowering you to manage your own domain authentication records.
               </p>
             </div>
           </div>
 
           <div className="bg-gradient-to-r from-[#00ff88]/5 to-transparent border border-[#00ff88]/20 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="space-y-2">
-              <h3 className="font-syne font-bold text-lg text-white">Join the Early Adopter Program</h3>
+            <div className="space-y-2 text-center md:text-left">
+              <h3 className="font-syne font-bold text-lg text-white">Join InboxFixer Today</h3>
               <p className="text-xs text-[#8b9fc0] max-w-xl">
-                Be a part of a community that values honest, open-source software. Try our tool completely free today, and help us grow by sending us your thoughts directly!
+                Be a part of a community that values honest, reliable, and secure domain auditing software. Try our tool completely free today, and protect your email sender reputation!
               </p>
             </div>
             <a 
               href="/auth/signup" 
               className="bg-[#00ff88] text-[#0a0f1e] px-6 py-3 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all text-sm whitespace-nowrap shrink-0"
             >
-              Join Early Beta Free
+              Get Started Free
             </a>
           </div>
 

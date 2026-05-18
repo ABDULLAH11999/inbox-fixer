@@ -11,9 +11,6 @@ export default function ReviewCountBadge() {
         <CheckCircle2 size={11} className="text-[#00ff88]" />
         <span className="text-[10px] font-mono text-[#00ff88] font-bold uppercase">100% Transparent</span>
       </div>
-      <span className="text-[10px] font-mono text-[#6b7fa8] pl-1 border-l border-[#1e2d4a]">
-        Early Adopter Beta
-      </span>
     </div>
   );
 }

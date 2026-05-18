@@ -764,8 +764,7 @@ const finalBlogs = [];
 
 // Push the first 10 custom blogs
 finalBlogs.push(...BLOG_TOPICS.map((b, index) => {
-  const photoId = UNSPLASH_IDS[index % UNSPLASH_IDS.length];
-  const imageUrl = `https://images.unsplash.com/photo-${photoId}?w=800&auto=format&fit=crop`;
+  const imageUrl = `/blog-images/blog-${index + 1}.svg`;
   return {
     id: `blog-${index + 1}`,
     slug: b.slug,
@@ -784,8 +783,7 @@ finalBlogs.push(...BLOG_TOPICS.map((b, index) => {
 // Push the programmatically generated high-quality 70 blogs
 ADDITIONAL_TOPICS.forEach((topic, i) => {
   const index = i + 10;
-  const photoId = UNSPLASH_IDS[index % UNSPLASH_IDS.length];
-  const imageUrl = `https://images.unsplash.com/photo-${photoId}?w=800&auto=format&fit=crop`;
+  const imageUrl = `/blog-images/blog-${index + 1}.svg`;
   
   const slug = topic.title.toLowerCase()
     .replace(/[^a-z0-9 ]/g, "")
