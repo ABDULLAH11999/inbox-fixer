@@ -4,7 +4,10 @@
  */
 
 const resendApiKey = process.env.RESEND_API_KEY || '';
-const resendFrom = process.env.RESEND_FROM || '"InboxFixer" <onboarding@resend.dev>';
+const resendFrom =
+  process.env.RESEND_FROM ||
+  process.env.SMTP_FROM ||
+  '"InboxFixer" <alerts@inboxfixer.online>';
 
 export async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
   if (!resendApiKey) {

@@ -1260,7 +1260,7 @@ export default function AdminPage() {
                 </h3>
 
                 <p className="text-xs text-[#8b9fc0] leading-relaxed">
-                  Verify the Resend API Key in <code className="text-[#00ff88] font-mono">.env.local</code>. Input an email and send a test message to double-check that registrations, OTPs, and monitoring drops arrive.
+                  Verify the Resend API Key and sender address in <code className="text-[#00ff88] font-mono">.env.local</code>. Resend tests must send from your verified domain, such as <code className="text-[#00ff88] font-mono">alerts@inboxfixer.online</code>, to double-check that registrations, OTPs, and monitoring drops arrive.
                 </p>
 
                 {/* OTP Verification Toggle Switch */}
