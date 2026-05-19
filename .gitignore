@@ -20,17 +20,10 @@
 # production
 /build
 
-# local JSON database states
-/data/users.json
-/data/settings.json
-/data/feedbacks.json
-/data/monitoring.json
-/data/scans.json
-/data/payments.json
-/data/visits.json
-/data/contacts.json
-/data/guest_scans.json
-/data/otps.json
+# local/runtime JSON database states
+/data/*.json
+!/data/blogs.json
+!/data/plans.json
 *.json.bak
 *.db
 *.sqlite
