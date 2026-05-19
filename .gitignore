@@ -24,6 +24,7 @@
 /data/*.json
 !/data/blogs.json
 !/data/plans.json
+!/data/visits.json
 *.json.bak
 *.db
 *.sqlite
