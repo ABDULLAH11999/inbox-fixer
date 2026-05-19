@@ -1,18 +1,24 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
-  Shield, Mail, Zap, CheckCircle, ArrowRight, User, Star, 
-  ChevronDown, ChevronUp, Copy, Check, Sparkles, HelpCircle 
+  Shield, Mail, Zap, CheckCircle, User,
+  ChevronDown, ChevronUp, Copy, Check, HelpCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReviewCountBadge from '@/components/ReviewCountBadge';
 
+type DashboardUser = {
+  id?: string;
+  email?: string;
+} | null;
+
 export default function HomePage() {
   const [domain, setDomain] = useState('');
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<DashboardUser>(null);
   const router = useRouter();
 
   // Mock results states
@@ -111,10 +117,10 @@ export default function HomePage() {
               "url": "https://inboxfixer.online",
               "applicationCategory": "BusinessApplication",
               "operatingSystem": "All",
-              "description": "Instant deliverability and domain reputation checker scanning SPF, DKIM, DMARC, MX, and global spam blacklists in plain English.",
+              "description": "Free domain DNS and email DNS checker for SPF, DKIM, DMARC, MX, BIMI, MTA-STS, blacklists, and rDNS with copy-paste fix records.",
               "offers": {
                 "@type": "Offer",
-                "price": "9.00",
+                "price": "0.00",
                 "priceCurrency": "USD"
               }
             },
@@ -141,14 +147,14 @@ export default function HomePage() {
       {/* Header / Navbar */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50 transition-all">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
-          <a href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="bg-[#0f1729] p-1.5 sm:p-2 rounded-xl border border-[#1e2d4a] group-hover:border-[#00ff88]/50 transition-all">
               <Shield className="text-[#00ff88]" size={18} />
             </div>
             <span className="font-syne font-bold text-lg sm:text-2xl tracking-tight text-white">
               Inbox<span className="text-[#00ff88]">Fixer</span>
             </span>
-          </a>
+          </Link>
 
           <nav className="flex gap-2 sm:gap-6 items-center">
             <a href="/pricing" className="hidden xs:inline-block text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
@@ -194,14 +200,14 @@ export default function HomePage() {
           <ReviewCountBadge />
 
           <h1 className="font-syne font-bold text-4xl md:text-5xl lg:text-6xl text-white leading-tight tracking-tight">
-            Stop Landing in Spam. <br/>
+            Free Domain DNS Check. <br/>
             <span className="bg-gradient-to-r from-[#00ff88] to-[#00ff88]/60 bg-clip-text text-transparent">
-              Fix Your Email DNS.
+              Fix Email Delivery Fast.
             </span>
           </h1>
 
           <p className="text-[#6b7fa8] text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
-            Instantly check your SPF, DKIM, DMARC, MX, and blacklists. Get a technical health grade and ready-made DNS records to secure your deliverability in 3 minutes.
+            Run a free email DNS check for SPF, DKIM, DMARC, MX, BIMI, MTA-STS, rDNS, and blacklist issues. Get a technical health score plus exact DNS records to fix emails not delivering.
           </p>
         </div>
 
@@ -236,7 +242,7 @@ export default function HomePage() {
               ) : (
                 <>
                   <Zap size={14} className="fill-current" />
-                  Analyze Domain Free
+                  Check DNS Free
                 </>
               )}
             </button>
@@ -400,17 +406,17 @@ export default function HomePage() {
               { 
                 step: '01', 
                 title: 'Scan Domain DNS', 
-                desc: 'Type your business sending domain name above to trigger our live real-time MX and DNS query analyzer.' 
+                desc: 'Enter your sending domain to run a free live check across email DNS, MX, blacklist, and authentication records.' 
               },
               { 
                 step: '02', 
-                title: 'Get Health Grade', 
-                desc: 'See your deliverability score out of 100 with clear, plain-English explanations of all security issues.' 
+                title: 'Find Delivery Problems', 
+                desc: 'See which DNS records are missing, broken, or misaligned with plain-English explanations for every issue.' 
               },
               { 
                 step: '03', 
                 title: 'Apply Copy-Paste Fixes', 
-                desc: 'Copy the ready-made TXT and MX records generated by our engine, update your DNS, and stay out of spam.' 
+                desc: 'Copy the recommended TXT and MX records, publish them in your DNS provider, and improve inbox placement.' 
               },
             ].map(({ step, title, desc }) => (
               <div key={step} className="bg-[#0f1729]/80 border border-[#1e2d4a]/50 rounded-2xl p-8 hover:border-[#00ff88]/30 transition-all hover:scale-[1.01]">
@@ -522,7 +528,7 @@ export default function HomePage() {
             <a href="/about" className="hover:text-white transition-colors">About Us</a>
             <a href="/contact" className="hover:text-white transition-colors">Contact Support</a>
             <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="/blog" className="hover:text-white transition-colors">Blog Hub</a>
+            <Link href="/blog" className="hover:text-white transition-colors">Blog Hub</Link>
             <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
           </div>

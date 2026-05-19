@@ -1,48 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
   <defs>
     <linearGradient id="grad-31" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a0f1e" />
-      <stop offset="100%" stop-color="#0f1729" />
+      <stop offset="0%" stop-color="#07111f" />
+      <stop offset="100%" stop-color="#0f3b5f" />
     </linearGradient>
     <pattern id="grid-31" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00ff88" stroke-width="0.5" opacity="0.07" />
+      <path d="M40 0L0 0 0 40" fill="none" stroke="#38bdf8" stroke-width="0.7" opacity="0.08" />
     </pattern>
   </defs>
-  
-  <!-- Background -->
   <rect width="800" height="450" fill="url(#grad-31)" />
-  
-  <!-- Tech Grid Overlay -->
   <rect width="800" height="450" fill="url(#grid-31)" />
   
-  <!-- Neon decorative orbs -->
-  <circle cx="150" cy="120" r="100" fill="#00ff88" opacity="0.04" filter="blur(40px)" />
-  <circle cx="650" cy="320" r="120" fill="#00ff88" opacity="0.03" filter="blur(50px)" />
-
-  <!-- Abstract digital diagnostic circle -->
-  <circle cx="400" cy="225" r="120" fill="none" stroke="#00ff88" stroke-width="1.5" stroke-dasharray="10, 8" opacity="0.15" />
-  <circle cx="400" cy="225" r="140" fill="none" stroke="#00ff88" stroke-width="0.5" opacity="0.08" />
-
-  <!-- Stylized corner diagnostic brackets -->
-  <path d="M 40 60 L 40 40 L 60 40" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.3" />
-  <path d="M 760 60 L 760 40 L 740 40" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.3" />
-  <path d="M 40 390 L 40 410 L 60 410" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.3" />
-  <path d="M 760 390 L 760 410 L 740 410" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.3" />
-
-  <!-- Center Icon Wrapper -->
-  <g transform="translate(372, 197) scale(2.4)">
-    <ellipse cx="12" cy="5" rx="9" ry="3" fill="none" stroke="#00ff88" stroke-width="2"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" fill="none" stroke="#00ff88" stroke-width="2"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" fill="none" stroke="#00ff88" stroke-width="2"/>
+  <circle cx="125" cy="116" r="89" fill="#38bdf8" opacity="0.07" />
+  <circle cx="638" cy="318" r="108" fill="#22c55e" opacity="0.06" />
+  <rect x="179" y="104" width="400" height="70" rx="18" fill="#06101b" stroke="#38bdf8" stroke-opacity="0.26" />
+  <rect x="198" y="170" width="416" height="70" rx="18" fill="#06101b" stroke="#22c55e" stroke-opacity="0.24" />
+  <rect x="226" y="236" width="402" height="70" rx="18" fill="#06101b" stroke="#38bdf8" stroke-opacity="0.22" />
+  <path d="M229 138h216M248 204h213M276 270h155" stroke="#d7f3ff" stroke-width="8" stroke-linecap="round" opacity="0.45" />
+  <g transform="translate(586 205)">
+    <path d="M0 -40l48 16v40c0 28-19 52-48 66-29-14-48-38-48-66v-40z" fill="none" stroke="#38bdf8" stroke-width="10"/><path d="M-18 6l15 15 28-34" fill="none" stroke="#22c55e" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-
-  <!-- Typography metadata overlay -->
-  <text x="400" y="380" font-family="'Syne', 'Inter', sans-serif" font-size="16" font-weight="bold" fill="#ffffff" opacity="0.8" text-anchor="middle" letter-spacing="4">
-    INBOXFIXER DIAGNOSTICS
-  </text>
-  
-  <text x="400" y="405" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#00ff88" opacity="0.6" text-anchor="middle" letter-spacing="2">
-    INDEXING NODE AUDIT // POST-0031
-  </text>
-
-  <!-- Technical grade subline -->
-  <line x1="300" y1="360" x2="500" y2="360" stroke="#00ff88" stroke-width="1" opacity="0.2" />
+  <text x="400" y="372" font-family="'Syne', sans-serif" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="3">CONFIGURING SPF FOR MULTIPLE</text>
+  <text x="400" y="400" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#38bdf8" opacity="0.8" text-anchor="middle" letter-spacing="2">THIRD-PARTY SENDERS SAFELY // POST-0031</text>
 </svg>

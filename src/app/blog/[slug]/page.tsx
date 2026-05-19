@@ -1,9 +1,13 @@
+import Link from 'next/link';
 import { getBlogs, getSettings } from '@/lib/db';
-import { Shield, ArrowLeft, Star, Clock, BookOpen, Calendar, HelpCircle } from 'lucide-react';
+import { Shield, ArrowLeft, Clock, Calendar } from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
+
+const SITE_URL = 'https://inboxfixer.online';
+const SITE_NAME = 'InboxFixer';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -22,19 +26,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const imageUrl = blog.image || '/og-image.png';
+  const canonicalBase = settings?.seo?.canonical_url || SITE_URL;
+  const canonicalUrl = blog.canonical_url || `${canonicalBase}/blog/${blog.slug}`;
+  const imageUrl = blog.image?.startsWith('http') ? blog.image : `${canonicalBase}${blog.image || '/og-image.png'}`;
+  const plainTitle = blog.title || 'InboxFixer Blog Article';
 
   return {
-    title: blog.seo_title || `${blog.title} | InboxFixer Guide`,
+    title: plainTitle,
     description: blog.seo_desc || blog.short_desc,
     keywords: blog.seo_keywords ? blog.seo_keywords.split(',').map((k: string) => k.trim()) : ['mail fixer', 'mail check', 'dns help'],
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
+    },
     alternates: {
-      canonical: blog.canonical_url || (settings?.seo?.canonical_url ? `${settings.seo.canonical_url}/blog/${blog.slug}` : undefined)
+      canonical: canonicalUrl,
     },
     openGraph: {
-      title: blog.seo_title || `${blog.title} | InboxFixer Guide`,
+      title: plainTitle,
       description: blog.seo_desc || blog.short_desc,
       type: 'article',
+      url: canonicalUrl,
+      siteName: SITE_NAME,
+      publishedTime: blog.created_at,
+      modifiedTime: blog.updated_at || blog.created_at,
+      authors: [SITE_NAME],
+      tags: blog.tags || [],
       images: [
         {
           url: imageUrl,
@@ -44,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: blog.seo_title || `${blog.title} | InboxFixer Guide`,
+      title: plainTitle,
       description: blog.seo_desc || blog.short_desc,
       images: [imageUrl]
     }
@@ -55,13 +79,48 @@ export default async function BlogDetailPage({ params }: Props) {
   const resolvedParams = await params;
   const blogs = getBlogs();
   const blog = blogs.find(b => b.slug === resolvedParams.slug);
+  const settings = getSettings();
 
   if (!blog) {
     notFound();
   }
 
+  const canonicalBase = settings?.seo?.canonical_url || SITE_URL;
+  const canonicalUrl = blog.canonical_url || `${canonicalBase}/blog/${blog.slug}`;
+  const imageUrl = blog.image?.startsWith('http') ? blog.image : `${canonicalBase}${blog.image || '/og-image.png'}`;
+
   return (
     <div className="min-h-screen bg-[#0a0f1e] relative overflow-hidden flex flex-col justify-between">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: blog.title,
+            description: blog.seo_desc || blog.short_desc,
+            image: [imageUrl],
+            mainEntityOfPage: canonicalUrl,
+            url: canonicalUrl,
+            datePublished: blog.created_at,
+            dateModified: blog.updated_at || blog.created_at,
+            author: {
+              '@type': 'Organization',
+              name: SITE_NAME,
+            },
+            publisher: {
+              '@type': 'Organization',
+              name: SITE_NAME,
+              logo: {
+                '@type': 'ImageObject',
+                url: `${canonicalBase}/icon-512.png`,
+              },
+            },
+            keywords: Array.isArray(blog.tags) ? blog.tags.join(', ') : undefined,
+            articleSection: 'Email Deliverability',
+          }),
+        }}
+      />
       
       {/* Decorative Blur Orbs */}
       <div className="absolute top-[-10%] left-[-15%] w-[500px] h-[500px] rounded-full bg-[#00ff88]/5 blur-[120px] pointer-events-none" />
@@ -70,28 +129,28 @@ export default async function BlogDetailPage({ params }: Props) {
       {/* Header / Navbar */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50 transition-all">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
-          <a href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="bg-[#0f1729] p-1.5 sm:p-2 rounded-xl border border-[#1e2d4a] group-hover:border-[#00ff88]/50 transition-all">
               <Shield className="text-[#00ff88]" size={18} />
             </div>
             <span className="font-syne font-bold text-lg sm:text-2xl tracking-tight text-white">
               Inbox<span className="text-[#00ff88]">Fixer</span>
             </span>
-          </a>
+          </Link>
 
           <nav className="flex gap-2 sm:gap-6 items-center">
-            <a href="/pricing" className="hidden xs:inline-block text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
+            <Link href="/pricing" className="hidden xs:inline-block text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
               Pricing
-            </a>
-            <a href="/blog" className="hidden xs:inline-block text-[#00ff88] hover:text-white transition-colors text-xs sm:text-sm font-semibold border-b-2 border-[#00ff88] pb-1">
+            </Link>
+            <Link href="/blog" className="hidden xs:inline-block text-[#00ff88] hover:text-white transition-colors text-xs sm:text-sm font-semibold border-b-2 border-[#00ff88] pb-1">
               Blog
-            </a>
-            <a 
-              href="/auth/signup" 
+            </Link>
+            <Link
+              href="/auth/signup"
               className="bg-[#00ff88] text-[#0a0f1e] px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-syne font-bold hover:bg-[#00dd77] hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm whitespace-nowrap"
             >
               Sign Up Free
-            </a>
+            </Link>
           </nav>
         </div>
       </header>
@@ -100,13 +159,13 @@ export default async function BlogDetailPage({ params }: Props) {
       <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-12 md:py-16 space-y-8">
         
         {/* Back Link */}
-        <a 
-          href="/blog" 
+        <Link
+          href="/blog"
           className="inline-flex items-center gap-2 text-xs font-mono font-bold text-[#6b7fa8] hover:text-[#00ff88] transition-colors group cursor-pointer"
         >
           <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
           Back to Blog Hub
-        </a>
+        </Link>
 
         {/* Content Header Grid */}
         <div className="space-y-6">
@@ -127,7 +186,7 @@ export default async function BlogDetailPage({ params }: Props) {
           </h1>
 
           <p className="text-[#8b9fc0] text-sm md:text-base leading-relaxed border-l-4 border-[#00ff88] pl-4 py-1 italic bg-[#0f1729]/30 rounded-r-2xl pr-4">
-            "{blog.short_desc}"
+            &quot;{blog.short_desc}&quot;
           </p>
         </div>
 
@@ -173,12 +232,12 @@ export default async function BlogDetailPage({ params }: Props) {
             <div className="flex items-center gap-1.5 bg-[#00ff88]/10 px-3 py-1 rounded border border-[#00ff88]/20">
               <span className="text-[10px] font-mono font-bold text-[#00ff88] uppercase tracking-wider">100% Free Diagnostics</span>
             </div>
-            <a 
-              href="/" 
+            <Link
+              href="/"
               className="bg-[#00ff88] text-[#0a0f1e] px-6 py-2.5 rounded-xl font-syne font-bold text-xs hover:bg-[#00dd77] active:scale-[0.98] transition-all whitespace-nowrap shadow-md"
             >
               Scan Domain Free
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -191,12 +250,12 @@ export default async function BlogDetailPage({ params }: Props) {
             &copy; {new Date().getFullYear()} InboxFixer. Protecting your business sender reputation.
           </div>
           <div className="flex gap-6 flex-wrap justify-center mt-2 md:mt-0">
-            <a href="/about" className="hover:text-white transition-colors">About Us</a>
-            <a href="/contact" className="hover:text-white transition-colors">Contact Support</a>
-            <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="/blog" className="hover:text-white transition-colors">Blog Hub</a>
-            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+            <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
+            <Link href="/contact" className="hover:text-white transition-colors">Contact Support</Link>
+            <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+            <Link href="/blog" className="hover:text-white transition-colors">Blog Hub</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
       </footer>

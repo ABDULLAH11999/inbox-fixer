@@ -4,71 +4,100 @@ import { Toaster } from 'sonner';
 import TrackPageView from '@/components/TrackPageView';
 import './globals.css';
 
-const syne = Syne({ 
-  subsets: ['latin'], 
-  variable: '--font-syne' 
+const SITE_URL = 'https://inboxfixer.online';
+const SITE_NAME = 'InboxFixer';
+const DEFAULT_TITLE = 'Free Domain DNS Check & Email DNS Record Fix Tool | InboxFixer';
+const DEFAULT_DESCRIPTION = 'Run a free domain DNS and email DNS check for SPF, DKIM, DMARC, MX, BIMI, MTA-STS, blacklist, and rDNS. Find why mail is not delivering and get exact DNS records to fix it fast.';
+const OG_IMAGE = '/opengraph-image.png';
+
+const syne = Syne({
+  subsets: ['latin'],
+  variable: '--font-syne',
 });
 const mono = IBM_Plex_Mono({
   weight: ['400', '600'],
   subsets: ['latin'],
-  variable: '--font-mono'
+  variable: '--font-mono',
 });
-const inter = Inter({ 
-  subsets: ['latin'], 
-  variable: '--font-inter' 
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
-  title: 'Free Email Deliverability Checker — SPF, DKIM, DMARC | InboxFixer',
-  description: 'Instantly check if your emails reach the inbox. Free SPF checker, DKIM verifier, DMARC validator, and blacklist scanner. Get plain English fixes for every issue.',
+  title: {
+    default: DEFAULT_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: DEFAULT_DESCRIPTION,
+  applicationName: SITE_NAME,
   keywords: [
-    'email inbox delivery fixer online',
-    'email inbox delivery fixer free',
-    'email inbox delivery fixer gmail',
+    'free domain dns check',
+    'email dns check free',
+    'domain dns checker',
+    'dns record fixer',
+    'email dns record fix tool',
     'email deliverability test',
     'free email deliverability test',
-    'mail tester',
+    'free email deliverability checker',
+    'mail delivery problem checker',
     'email deliverability checker',
     'SPF record checker free',
     'DKIM checker online',
     'DMARC checker free',
+    'MX record checker',
+    'why email is not delivering',
     'why are my emails going to spam',
-    'email blacklist check',
-    'domain email health check',
-    'check email authentication',
+    'domain email dns fix',
+    'email blacklist check free',
+    'domain dns health check',
+    'check email authentication records',
   ].join(', '),
-  metadataBase: new URL('https://inboxfixer.online'),
+  metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: 'https://inboxfixer.online',
+    canonical: SITE_URL,
   },
   manifest: '/manifest.json',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
   icons: {
+    shortcut: [{ url: '/icon-192.png', type: 'image/png' }],
     icon: [
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
     ],
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
-    title: 'InboxFixer — Email Deliverability Checker',
-    description: 'Check why your emails go to spam. Free instant diagnosis.',
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: 'en_US',
     type: 'website',
     images: [
       {
-        url: '/og-image.png',
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: 'InboxFixer Email Health Security Shield',
-      }
+        alt: 'InboxFixer free domain DNS and email deliverability checker',
+      },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'InboxFixer — Email Deliverability Checker',
-    description: 'Check why your emails go to spam. Free instant diagnosis.',
-    images: ['/og-image.png'],
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    images: [OG_IMAGE],
   },
 };
 
@@ -82,34 +111,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark scroll-smooth">
       <head>
-        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
-        <link rel="shortcut icon" href="/icon-512.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              "name": "InboxFixer",
-              "applicationCategory": "BusinessApplication",
-              "operatingSystem": "All",
-              "url": "https://inboxfixer.online",
-              "logo": "https://inboxfixer.online/icon-512.png",
-              "description": "Instantly check why your emails go to spam. Free SPF, DKIM, DMARC, and blacklist diagnosis.",
-              "aggregateRating": {
-                "@type": "AggregateRating",
-                "ratingValue": "4.9",
-                "bestRating": "5",
-                "worstRating": "1",
-                "ratingCount": currentCount.toString()
+            __html: JSON.stringify([
+              {
+                '@context': 'https://schema.org',
+                '@type': 'Organization',
+                name: SITE_NAME,
+                url: SITE_URL,
+                logo: `${SITE_URL}/icon-512.png`,
+                image: `${SITE_URL}/icon-512.png`,
               },
-              "offers": {
-                "@type": "Offer",
-                "price": "0.00",
-                "priceCurrency": "USD"
-              }
-            })
+              {
+                '@context': 'https://schema.org',
+                '@type': 'WebSite',
+                name: SITE_NAME,
+                url: SITE_URL,
+                description: DEFAULT_DESCRIPTION,
+              },
+              {
+                '@context': 'https://schema.org',
+                '@type': 'SoftwareApplication',
+                name: SITE_NAME,
+                applicationCategory: 'BusinessApplication',
+                operatingSystem: 'All',
+                url: SITE_URL,
+                logo: `${SITE_URL}/icon-512.png`,
+                description: DEFAULT_DESCRIPTION,
+                aggregateRating: {
+                  '@type': 'AggregateRating',
+                  ratingValue: '4.9',
+                  bestRating: '5',
+                  worstRating: '1',
+                  ratingCount: currentCount.toString(),
+                },
+                offers: {
+                  '@type': 'Offer',
+                  price: '0.00',
+                  priceCurrency: 'USD',
+                },
+              },
+            ]),
           }}
         />
       </head>

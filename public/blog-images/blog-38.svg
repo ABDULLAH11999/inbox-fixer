@@ -1,48 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
   <defs>
     <linearGradient id="grad-38" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a0f1e" />
-      <stop offset="100%" stop-color="#1e1b4b" />
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#164e63" />
     </linearGradient>
     <pattern id="grid-38" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#8b5cf6" stroke-width="0.5" opacity="0.07" />
+      <path d="M40 0L0 0 0 40" fill="none" stroke="#06b6d4" stroke-width="0.7" opacity="0.08" />
     </pattern>
   </defs>
-  
-  <!-- Background -->
   <rect width="800" height="450" fill="url(#grad-38)" />
-  
-  <!-- Tech Grid Overlay -->
   <rect width="800" height="450" fill="url(#grid-38)" />
   
-  <!-- Neon decorative orbs -->
-  <circle cx="150" cy="120" r="100" fill="#8b5cf6" opacity="0.04" filter="blur(40px)" />
-  <circle cx="650" cy="320" r="120" fill="#8b5cf6" opacity="0.03" filter="blur(50px)" />
-
-  <!-- Abstract digital diagnostic circle -->
-  <circle cx="400" cy="225" r="120" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="10, 8" opacity="0.15" />
-  <circle cx="400" cy="225" r="140" fill="none" stroke="#8b5cf6" stroke-width="0.5" opacity="0.08" />
-
-  <!-- Stylized corner diagnostic brackets -->
-  <path d="M 40 60 L 40 40 L 60 40" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.3" />
-  <path d="M 760 60 L 760 40 L 740 40" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.3" />
-  <path d="M 40 390 L 40 410 L 60 410" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.3" />
-  <path d="M 760 390 L 760 410 L 740 410" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.3" />
-
-  <!-- Center Icon Wrapper -->
-  <g transform="translate(372, 197) scale(2.4)">
-    <ellipse cx="12" cy="5" rx="9" ry="3" fill="none" stroke="#8b5cf6" stroke-width="2"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" fill="none" stroke="#8b5cf6" stroke-width="2"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" fill="none" stroke="#8b5cf6" stroke-width="2"/>
-  </g>
-
-  <!-- Typography metadata overlay -->
-  <text x="400" y="380" font-family="'Syne', 'Inter', sans-serif" font-size="16" font-weight="bold" fill="#ffffff" opacity="0.8" text-anchor="middle" letter-spacing="4">
-    INBOXFIXER DIAGNOSTICS
-  </text>
+  <circle cx="128" cy="112" r="98" fill="#06b6d4" opacity="0.07" />
+  <circle cx="645" cy="328" r="130" fill="#a3e635" opacity="0.06" />
+  <rect x="156" y="110" width="496" height="210" rx="24" fill="#0a1420" stroke="#06b6d4" stroke-opacity="0.25" />
+  <path d="M196 160h178M196 195h240M196 230h152M196 265h198" stroke="#cffafe" stroke-width="8" stroke-linecap="round" opacity="0.45" />
+  <circle cx="596" cy="218" r="54" fill="none" stroke="#06b6d4" stroke-width="10" />
+  <path d="M632 254l38 38" stroke="#a3e635" stroke-width="12" stroke-linecap="round" />
   
-  <text x="400" y="405" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#8b5cf6" opacity="0.6" text-anchor="middle" letter-spacing="2">
-    INDEXING NODE AUDIT // POST-0038
-  </text>
-
-  <!-- Technical grade subline -->
-  <line x1="300" y1="360" x2="500" y2="360" stroke="#8b5cf6" stroke-width="1" opacity="0.2" />
+      <rect x="66" y="54" width="96" height="28" rx="8" fill="#0c1724" stroke="#06b6d4" stroke-opacity="0.22"/>
+      <text x="114" y="73" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#06b6d4" text-anchor="middle">#DKIM-KEYS</text>
+    
+      <rect x="178" y="54" width="96" height="28" rx="8" fill="#0c1724" stroke="#06b6d4" stroke-opacity="0.22"/>
+      <text x="226" y="73" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#06b6d4" text-anchor="middle">#EMAIL-SECU</text>
+    
+  <text x="400" y="372" font-family="'Syne', sans-serif" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="3">DKIM KEY RESOLUTION</text>
+  <text x="400" y="400" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#06b6d4" opacity="0.8" text-anchor="middle" letter-spacing="2">BLOG SEARCH PREVIEW // POST-0038</text>
 </svg>
