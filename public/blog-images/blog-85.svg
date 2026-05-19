@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad-85" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07131a" />
+      <stop offset="100%" stop-color="#083344" />
+    </linearGradient>
+    <pattern id="mail-grid-85" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0L0 0 0 48" fill="none" stroke="#22d3ee" stroke-width="0.7" opacity="0.08" />
+    </pattern>
+  </defs>
+  <rect width="800" height="450" fill="url(#grad-85)" />
+  <rect width="800" height="450" fill="url(#mail-grid-85)" />
+  <circle cx="145" cy="110" r="88" fill="#22d3ee" opacity="0.07" />
+  <circle cx="680" cy="305" r="120" fill="#34d399" opacity="0.06" />
+  <rect x="150" y="105" width="500" height="240" rx="28" fill="#081019" stroke="#22d3ee" stroke-opacity="0.24" />
+  <rect x="205" y="155" width="110" height="64" rx="12" fill="#0c1b28" stroke="#34d399" stroke-opacity="0.4" />
+  <rect x="345" y="155" width="110" height="64" rx="12" fill="#0c1b28" stroke="#22d3ee" stroke-opacity="0.4" />
+  <rect x="485" y="155" width="110" height="64" rx="12" fill="#0c1b28" stroke="#34d399" stroke-opacity="0.4" />
+  <path d="M205 260h390" stroke="#8b9fc0" stroke-width="10" stroke-linecap="round" opacity="0.45" />
+  <text x="260" y="194" font-family="'IBM Plex Mono', monospace" font-size="18" fill="#34d399" text-anchor="middle">SPF</text>
+  <text x="400" y="194" font-family="'IBM Plex Mono', monospace" font-size="18" fill="#22d3ee" text-anchor="middle">DKIM</text>
+  <text x="540" y="194" font-family="'IBM Plex Mono', monospace" font-size="18" fill="#34d399" text-anchor="middle">DMARC</text>
+  <text x="400" y="372" font-family="'Syne', sans-serif" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="3">
+    EMAIL DNS RECORDS FIX
+  </text>
+  <text x="400" y="400" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#22d3ee" opacity="0.82" text-anchor="middle" letter-spacing="2">
+    AUTHENTICATION STACK // POST-0085
+  </text>
+</svg>

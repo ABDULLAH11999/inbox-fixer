@@ -35,6 +35,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'plans' | 'payments' | 'config' | 'seo' | 'blogs' | 'track' | 'feedback' | 'contacts'>('overview');
   const [timeFilter, setTimeFilter] = useState<'1day' | '7days' | '30days' | 'overall'>('7days');
+  const [visitFilter, setVisitFilter] = useState<'all' | 'unique'>('all');
   const router = useRouter();
 
   // Authentication states
@@ -450,7 +451,8 @@ export default function AdminPage() {
         visitsCount: 0,
         uniqueCount: 0,
         revisitedCount: 0,
-        chartData: []
+        chartData: [],
+        tableRows: []
       };
     }
 
@@ -557,9 +559,26 @@ export default function AdminPage() {
       visitsCount,
       uniqueCount,
       revisitedCount,
-      chartData
+      chartData,
+      tableRows: (() => {
+        const orderedVisits = filterVisits.slice().reverse();
+
+        if (visitFilter === 'unique') {
+          const seenVisitorIds = new Set<string>();
+          return orderedVisits.filter((visit: any) => {
+            if (seenVisitorIds.has(visit.visitor_id)) {
+              return false;
+            }
+
+            seenVisitorIds.add(visit.visitor_id);
+            return true;
+          });
+        }
+
+        return orderedVisits.slice(0, 10);
+      })()
     };
-  }, [adminData, timeFilter]);
+  }, [adminData, timeFilter, visitFilter]);
 
   if (loading) {
     return (
@@ -1628,7 +1647,7 @@ export default function AdminPage() {
               </div>
 
               {/* Range Selector Filter */}
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <span className="text-[10px] font-mono text-[#6b7fa8] uppercase">Time Horizon:</span>
                 <select
                   value={timeFilter}
@@ -1639,6 +1658,15 @@ export default function AdminPage() {
                   <option value="7days">Last 7 Days</option>
                   <option value="30days">Last 30 Days</option>
                   <option value="overall">Overall Growth</option>
+                </select>
+                <span className="text-[10px] font-mono text-[#6b7fa8] uppercase sm:ml-2">Session View:</span>
+                <select
+                  value={visitFilter}
+                  onChange={(e: any) => setVisitFilter(e.target.value)}
+                  className="bg-[#0f1729] border border-[#1e2d4a]/80 focus:border-[#00ff88] rounded-xl px-4 py-2 text-xs font-mono text-white focus:outline-none cursor-pointer"
+                >
+                  <option value="all">Recent Logs</option>
+                  <option value="unique">Unique Sessions</option>
                 </select>
               </div>
             </div>
@@ -1860,13 +1888,22 @@ export default function AdminPage() {
             {/* Detailed logs table */}
             <div className="bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl overflow-hidden shadow-xl">
               <div className="p-6 border-b border-[#1e2d4a]/50 flex justify-between items-center bg-[#020812]/20">
-                <h3 className="font-syne font-bold text-sm text-white">Live Visitor Stream</h3>
+                <div className="space-y-1">
+                  <h3 className="font-syne font-bold text-sm text-white">
+                    {visitFilter === 'unique' ? 'Unique Session Stream' : 'Live Visitor Stream'}
+                  </h3>
+                  <p className="text-[10px] font-mono text-[#6b7fa8]">
+                    {visitFilter === 'unique'
+                      ? 'Showing one latest log per visitor_id for the selected time horizon with no record cap.'
+                      : 'Showing the 10 most recent visit logs for the selected time horizon.'}
+                  </p>
+                </div>
                 <span className="text-[10px] font-mono text-[#00ff88] bg-[#00ff88]/10 px-2 py-0.5 rounded border border-[#00ff88]/20 animate-pulse uppercase">
                   Log Connection Secured
                 </span>
               </div>
               
-              {(!adminData.visits || adminData.visits.length === 0) ? (
+              {stats.tableRows.length === 0 ? (
                 <div className="text-center p-12 font-mono text-xs text-[#6b7fa8]">
                   No logged traffic logs recorded in data/visits.json database yet.
                 </div>
@@ -1883,7 +1920,7 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#1e2d4a]/45">
-                      {adminData.visits.slice().reverse().slice(0, 10).map((v: any) => (
+                      {stats.tableRows.map((v: any) => (
                         <tr key={v.id} className="hover:bg-white/5 transition-all text-white">
                           <td className="p-4 pl-6 font-semibold break-all text-white">
                             {v.ip === '::1' || v.ip === '127.0.0.1' ? 'localhost (127.0.0.1)' : v.ip}

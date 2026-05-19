@@ -12,6 +12,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const blogs = getBlogs();
+  const settings = getSettings();
   const blog = blogs.find(b => b.slug === resolvedParams.slug);
 
   if (!blog) {
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: blog.seo_desc || blog.short_desc,
     keywords: blog.seo_keywords ? blog.seo_keywords.split(',').map((k: string) => k.trim()) : ['mail fixer', 'mail check', 'dns help'],
     alternates: {
-      canonical: `https://inboxfixer.online/blog/${blog.slug}`
+      canonical: blog.canonical_url || (settings?.seo?.canonical_url ? `${settings.seo.canonical_url}/blog/${blog.slug}` : undefined)
     },
     openGraph: {
       title: blog.seo_title || `${blog.title} | InboxFixer Guide`,
