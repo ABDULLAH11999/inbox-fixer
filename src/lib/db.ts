@@ -18,6 +18,7 @@ const FEEDBACKS_FILE = path.join(DB_DIR, 'feedbacks.json');
 const GUEST_SCANS_FILE = path.join(DB_DIR, 'guest_scans.json');
 const CONTACTS_FILE = path.join(DB_DIR, 'contacts.json');
 const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 function tableNameFromFile(filePath: string) {
   return path.basename(filePath, '.json').replace(/[^a-z0-9_]/gi, '_');
@@ -49,6 +50,12 @@ function runDbBridge(action: string, tableName: string, payload: Record<string, 
   });
 
   return result ? JSON.parse(result) : null;
+}
+
+function requireProductionDatabase() {
+  if (IS_PRODUCTION && !USE_POSTGRES) {
+    throw new Error('DATABASE_URL is required in production. Refusing to use JSON file storage.');
+  }
 }
 
 // Helper to ensure directory and files exist
@@ -246,6 +253,8 @@ function ensureDB() {
 
 // Read/Write operations
 export function readTable<T>(filePath: string): T[] {
+  requireProductionDatabase();
+
   if (USE_POSTGRES) {
     const tableName = tableNameFromFile(filePath);
     const seed = readSeedValue(filePath);
@@ -263,6 +272,8 @@ export function readTable<T>(filePath: string): T[] {
 }
 
 export function writeTable<T>(filePath: string, data: T[]): void {
+  requireProductionDatabase();
+
   if (USE_POSTGRES) {
     const tableName = tableNameFromFile(filePath);
     runDbBridge('write', tableName, { rows: data });
@@ -308,6 +319,8 @@ export function getContacts() { return readTable<any>(CONTACTS_FILE); }
 export function writeContacts(data: any[]) { writeTable(CONTACTS_FILE, data); }
 
 export function getSettings(): any {
+  requireProductionDatabase();
+
   if (USE_POSTGRES) {
     const seed = readSeedObject(SETTINGS_FILE) ?? {
       stripe_mode: 'test',
@@ -332,6 +345,8 @@ export function getSettings(): any {
 }
 
 export function writeSettings(data: any): void {
+  requireProductionDatabase();
+
   if (USE_POSTGRES) {
     runDbBridge('write-one', tableNameFromFile(SETTINGS_FILE), { row: data });
     return;
