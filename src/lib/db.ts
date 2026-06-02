@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import { execFileSync } from 'child_process';
 
 // Define DB directory inside workspace
 const DB_DIR = path.join(process.cwd(), 'data');
+const DB_BRIDGE = path.join(process.cwd(), 'scripts', 'db-bridge.js');
 const USERS_FILE = path.join(DB_DIR, 'users.json');
 const PLANS_FILE = path.join(DB_DIR, 'plans.json');
 const PAYMENTS_FILE = path.join(DB_DIR, 'payments.json');
@@ -15,6 +17,39 @@ const VISITS_FILE = path.join(DB_DIR, 'visits.json');
 const FEEDBACKS_FILE = path.join(DB_DIR, 'feedbacks.json');
 const GUEST_SCANS_FILE = path.join(DB_DIR, 'guest_scans.json');
 const CONTACTS_FILE = path.join(DB_DIR, 'contacts.json');
+const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
+
+function tableNameFromFile(filePath: string) {
+  return path.basename(filePath, '.json').replace(/[^a-z0-9_]/gi, '_');
+}
+
+function readSeedValue(filePath: string) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const parsed = JSON.parse(content);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return [];
+  }
+}
+
+function readSeedObject(filePath: string) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch {
+    return null;
+  }
+}
+
+function runDbBridge(action: string, tableName: string, payload: Record<string, unknown> = {}) {
+  const result = execFileSync(process.execPath, [DB_BRIDGE, action, tableName], {
+    input: JSON.stringify(payload),
+    encoding: 'utf8',
+    env: process.env
+  });
+
+  return result ? JSON.parse(result) : null;
+}
 
 // Helper to ensure directory and files exist
 function ensureDB() {
@@ -211,6 +246,13 @@ function ensureDB() {
 
 // Read/Write operations
 export function readTable<T>(filePath: string): T[] {
+  if (USE_POSTGRES) {
+    const tableName = tableNameFromFile(filePath);
+    const seed = readSeedValue(filePath);
+    const result = runDbBridge('read', tableName, { seed });
+    return (result ?? []) as T[];
+  }
+
   ensureDB();
   try {
     const content = fs.readFileSync(filePath, 'utf-8');
@@ -221,6 +263,12 @@ export function readTable<T>(filePath: string): T[] {
 }
 
 export function writeTable<T>(filePath: string, data: T[]): void {
+  if (USE_POSTGRES) {
+    const tableName = tableNameFromFile(filePath);
+    runDbBridge('write', tableName, { rows: data });
+    return;
+  }
+
   ensureDB();
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
@@ -260,6 +308,16 @@ export function getContacts() { return readTable<any>(CONTACTS_FILE); }
 export function writeContacts(data: any[]) { writeTable(CONTACTS_FILE, data); }
 
 export function getSettings(): any {
+  if (USE_POSTGRES) {
+    const seed = readSeedObject(SETTINGS_FILE) ?? {
+      stripe_mode: 'test',
+      smtp_receiver_email: 'admin@inboxfixer.com',
+      seo: { site_title: '', site_desc: '', canonical_url: '', header_tags: '', footer_tags: '' }
+    };
+    const result = runDbBridge('read-one', tableNameFromFile(SETTINGS_FILE), { seed: [seed] });
+    return result ?? seed;
+  }
+
   ensureDB();
   try {
     const content = fs.readFileSync(SETTINGS_FILE, 'utf-8');
@@ -274,6 +332,11 @@ export function getSettings(): any {
 }
 
 export function writeSettings(data: any): void {
+  if (USE_POSTGRES) {
+    runDbBridge('write-one', tableNameFromFile(SETTINGS_FILE), { row: data });
+    return;
+  }
+
   ensureDB();
   fs.writeFileSync(SETTINGS_FILE, JSON.stringify(data, null, 2));
 }
