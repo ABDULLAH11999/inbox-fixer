@@ -3,7 +3,7 @@ import { Shield, BookOpen, Star, ArrowRight, Sparkles, Zap } from 'lucide-react'
 import type { Metadata } from 'next';
 import ReviewCountBadge from '@/components/ReviewCountBadge';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings();

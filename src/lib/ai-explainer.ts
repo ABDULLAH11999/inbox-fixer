@@ -13,6 +13,24 @@ const geminiApiKey = process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.i
 
 const groq = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
 const gemini = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
+const AI_SUMMARY_TIMEOUT_MS = 1400;
+
+async function raceWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
+  let timer: NodeJS.Timeout | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<null>((resolve) => {
+        timer = setTimeout(() => resolve(null), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
+}
 
 // Generate a personalized summary for the scan results
 export async function generateScanSummary(
@@ -40,13 +58,17 @@ Maximum 60 words.
   // 1. Try Groq (Llama 3.3 70B)
   if (groq) {
     try {
-      const response = await groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 150,
-        temperature: 0.3,
-      });
-      const content = response.choices[0]?.message?.content;
+      const response = await raceWithTimeout(
+        groq.chat.completions.create({
+          model: 'llama-3.3-70b-versatile',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 150,
+          temperature: 0.3,
+        }),
+        AI_SUMMARY_TIMEOUT_MS
+      );
+
+      const content = response?.choices[0]?.message?.content;
       if (content) return content.trim();
     } catch (error) {
       console.warn('Groq AI explanation failed, trying Gemini fallback...', error);
@@ -57,8 +79,8 @@ Maximum 60 words.
   if (gemini) {
     try {
       const model = gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
+      const result = await raceWithTimeout(model.generateContent(prompt), AI_SUMMARY_TIMEOUT_MS);
+      const text = result?.response.text();
       if (text) return text.trim();
     } catch (error) {
       console.warn('Gemini AI explanation failed, using static explanation...', error);

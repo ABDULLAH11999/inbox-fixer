@@ -4,13 +4,19 @@ import { Shield, ArrowLeft, Clock, Calendar } from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 600;
 
 const SITE_URL = 'https://inboxfixer.online';
 const SITE_NAME = 'InboxFixer';
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams() {
+  return getBlogs().map((blog: any) => ({
+    slug: blog.slug,
+  }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

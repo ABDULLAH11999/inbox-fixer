@@ -19,6 +19,16 @@ const GUEST_SCANS_FILE = path.join(DB_DIR, 'guest_scans.json');
 const CONTACTS_FILE = path.join(DB_DIR, 'contacts.json');
 const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const READ_CACHE_TTL_MS = 5000;
+
+type CacheEntry<T> = {
+  value: T;
+  mtimeMs: number;
+  cachedAt: number;
+};
+
+const readCache = new Map<string, CacheEntry<any>>();
+let dbInitialized = false;
 
 function tableNameFromFile(filePath: string) {
   return path.basename(filePath, '.json').replace(/[^a-z0-9_]/gi, '_');
@@ -42,11 +52,53 @@ function readSeedObject(filePath: string) {
   }
 }
 
+function getFileMtime(filePath: string) {
+  try {
+    return fs.statSync(filePath).mtimeMs;
+  } catch {
+    return 0;
+  }
+}
+
+function getCachedRead<T>(filePath: string): T | null {
+  const entry = readCache.get(filePath);
+  if (!entry) {
+    return null;
+  }
+
+  if (Date.now() - entry.cachedAt > READ_CACHE_TTL_MS) {
+    readCache.delete(filePath);
+    return null;
+  }
+
+  if (entry.mtimeMs !== getFileMtime(filePath)) {
+    readCache.delete(filePath);
+    return null;
+  }
+
+  return entry.value as T;
+}
+
+function setCachedRead<T>(filePath: string, value: T) {
+  readCache.set(filePath, {
+    value,
+    mtimeMs: getFileMtime(filePath),
+    cachedAt: Date.now(),
+  });
+}
+
 function readLocalJson<T>(filePath: string, fallback: T[] = []): T[] {
+  const cached = getCachedRead<T[]>(filePath);
+  if (cached) {
+    return cached;
+  }
+
   try {
     const content = fs.readFileSync(filePath, 'utf-8');
     const parsed = JSON.parse(content);
-    return Array.isArray(parsed) ? parsed as T[] : fallback;
+    const rows = Array.isArray(parsed) ? parsed as T[] : fallback;
+    setCachedRead(filePath, rows);
+    return rows;
   } catch {
     return fallback;
   }
@@ -54,6 +106,7 @@ function readLocalJson<T>(filePath: string, fallback: T[] = []): T[] {
 
 function writeLocalJson<T>(filePath: string, data: T[]) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+  setCachedRead(filePath, data);
 }
 
 function runDbBridge(action: string, tableName: string, payload: Record<string, unknown> = {}) {
@@ -68,6 +121,10 @@ function runDbBridge(action: string, tableName: string, payload: Record<string, 
 
 // Helper to ensure directory and files exist
 function ensureDB() {
+  if (dbInitialized) {
+    return;
+  }
+
   if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
   }
@@ -257,6 +314,8 @@ function ensureDB() {
   if (!fs.existsSync(FEEDBACKS_FILE)) fs.writeFileSync(FEEDBACKS_FILE, JSON.stringify([], null, 2));
   if (!fs.existsSync(GUEST_SCANS_FILE)) fs.writeFileSync(GUEST_SCANS_FILE, JSON.stringify([], null, 2));
   if (!fs.existsSync(CONTACTS_FILE)) fs.writeFileSync(CONTACTS_FILE, JSON.stringify([], null, 2));
+
+  dbInitialized = true;
 }
 
 // Read/Write operations
@@ -343,6 +402,11 @@ export function writeContacts(data: any[]) { writeTable(CONTACTS_FILE, data); }
 
 export function getSettings(): any {
   ensureDB();
+  const cached = getCachedRead<any>(SETTINGS_FILE);
+  if (cached) {
+    return cached;
+  }
+
   const fallback = readSingleLocalJson(SETTINGS_FILE, {
     stripe_mode: 'test',
     smtp_receiver_email: 'admin@inboxfixer.com',
@@ -350,15 +414,19 @@ export function getSettings(): any {
   });
 
   if (!USE_POSTGRES) {
+    setCachedRead(SETTINGS_FILE, fallback);
     return fallback;
   }
 
   try {
     const seed = readSeedObject(SETTINGS_FILE) ?? fallback;
     const result = runDbBridge('read-one', tableNameFromFile(SETTINGS_FILE), { seed: [seed] });
-    return result ?? fallback;
+    const settings = result ?? fallback;
+    setCachedRead(SETTINGS_FILE, settings);
+    return settings;
   } catch (error) {
     console.warn('Postgres read failed for settings.json. Falling back to local JSON.', error);
+    setCachedRead(SETTINGS_FILE, fallback);
     return fallback;
   }
 }
@@ -366,6 +434,7 @@ export function getSettings(): any {
 export function writeSettings(data: any): void {
   ensureDB();
   fs.writeFileSync(SETTINGS_FILE, JSON.stringify(data, null, 2));
+  setCachedRead(SETTINGS_FILE, data);
 
   if (USE_POSTGRES) {
     try {
