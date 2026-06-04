@@ -132,7 +132,10 @@ export default function AdminPage() {
 
         // Seed plans
         if (data.plans) {
-          setEditablePlans(JSON.parse(JSON.stringify(data.plans)));
+          setEditablePlans(JSON.parse(JSON.stringify(data.plans)).map((plan: any) => ({
+            enabled: plan.enabled !== false,
+            ...plan,
+          })));
         }
       } else {
         toast.error(data.error || 'Failed to sync admin console.');
@@ -1116,6 +1119,28 @@ export default function AdminPage() {
                         <option value="true">Paid Tiers (Pro)</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-4 bg-[#020812]/40 border border-[#1e2d4a]/60 rounded-2xl px-4 py-3 text-xs">
+                    <div>
+                      <p className="font-mono text-[#6b7fa8] uppercase text-[10px]">Frontend Visibility</p>
+                      <p className="text-[#8b9fc0] mt-0.5">Disabled plans will be hidden from the public pricing page.</p>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={plan.enabled !== false}
+                        onChange={e => {
+                          const updated = [...editablePlans];
+                          updated[planIdx].enabled = e.target.checked;
+                          setEditablePlans(updated);
+                        }}
+                        className="h-4 w-4 accent-[#00ff88]"
+                      />
+                      <span className={`font-mono uppercase text-[10px] ${plan.enabled !== false ? 'text-[#00ff88]' : 'text-[#6b7fa8]'}`}>
+                        {plan.enabled !== false ? 'Visible' : 'Hidden'}
+                      </span>
+                    </label>
                   </div>
 
                   <div className="space-y-1.5 text-xs font-mono">

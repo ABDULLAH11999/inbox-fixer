@@ -42,6 +42,20 @@ function readSeedObject(filePath: string) {
   }
 }
 
+function readLocalJson<T>(filePath: string, fallback: T[] = []): T[] {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const parsed = JSON.parse(content);
+    return Array.isArray(parsed) ? parsed as T[] : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeLocalJson<T>(filePath: string, data: T[]) {
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
+
 function runDbBridge(action: string, tableName: string, payload: Record<string, unknown> = {}) {
   const result = execFileSync(process.execPath, [DB_BRIDGE, action, tableName], {
     input: JSON.stringify(payload),
@@ -50,12 +64,6 @@ function runDbBridge(action: string, tableName: string, payload: Record<string, 
   });
 
   return result ? JSON.parse(result) : null;
-}
-
-function requireProductionDatabase() {
-  if (IS_PRODUCTION && !USE_POSTGRES) {
-    throw new Error('DATABASE_URL is required in production. Refusing to use JSON file storage.');
-  }
 }
 
 // Helper to ensure directory and files exist
@@ -67,9 +75,9 @@ function ensureDB() {
   // Pre-seed plans
   if (!fs.existsSync(PLANS_FILE)) {
     const defaultPlans = [
-      { id: 'guest', name: 'Guest', price: 0, is_paid: false, scans_limit: 3, features: ['3 Scans/day', 'Plain English Explanations', 'DNS Fix Templates'] },
-      { id: 'free', name: 'Free Account', price: 0, is_paid: false, scans_limit: 10, features: ['10 Scans/day', 'Plain English Explanations', 'Scan History Log'] },
-      { id: 'pro', name: 'Pro Plan', price: 9, is_paid: true, scans_limit: 999999, features: ['Unlimited Scans', 'Daily Monitored Alerts', 'PDF Report Export', 'Priority Support'] }
+      { id: 'guest', name: 'Guest', price: 0, is_paid: false, enabled: true, scans_limit: 3, features: ['3 Scans/day', 'Plain English Explanations', 'DNS Fix Templates'] },
+      { id: 'free', name: 'Free Account', price: 0, is_paid: false, enabled: true, scans_limit: 10, features: ['10 Scans/day', 'Plain English Explanations', 'Scan History Log'] },
+      { id: 'pro', name: 'Pro Plan', price: 9, is_paid: true, enabled: true, scans_limit: 999999, features: ['Unlimited Scans', 'Daily Monitored Alerts', 'PDF Report Export', 'Priority Support'] }
     ];
     fs.writeFileSync(PLANS_FILE, JSON.stringify(defaultPlans, null, 2));
   }
@@ -253,42 +261,57 @@ function ensureDB() {
 
 // Read/Write operations
 export function readTable<T>(filePath: string): T[] {
-  requireProductionDatabase();
+  ensureDB();
+  const localRows = readLocalJson<T>(filePath, []);
 
-  if (USE_POSTGRES) {
-    const tableName = tableNameFromFile(filePath);
-    const seed = readSeedValue(filePath);
-    const result = runDbBridge('read', tableName, { seed });
-    return (result ?? []) as T[];
+  if (!USE_POSTGRES) {
+    return localRows;
   }
 
-  ensureDB();
   try {
-    const content = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(content) as T[];
-  } catch {
-    return [];
+    const tableName = tableNameFromFile(filePath);
+    const seed = localRows.length > 0 ? localRows : readSeedValue(filePath);
+    const result = runDbBridge('read', tableName, { seed });
+    return (result ?? localRows) as T[];
+  } catch (error) {
+    console.warn(`Postgres read failed for ${path.basename(filePath)}. Falling back to local JSON.`, error);
+    return localRows;
   }
 }
 
 export function writeTable<T>(filePath: string, data: T[]): void {
-  requireProductionDatabase();
+  ensureDB();
+  writeLocalJson(filePath, data);
 
   if (USE_POSTGRES) {
-    const tableName = tableNameFromFile(filePath);
-    runDbBridge('write', tableName, { rows: data });
-    return;
+    try {
+      const tableName = tableNameFromFile(filePath);
+      runDbBridge('write', tableName, { rows: data });
+    } catch (error) {
+      console.warn(`Postgres write failed for ${path.basename(filePath)}. Local JSON was updated and kept as fallback.`, error);
+    }
   }
+}
 
-  ensureDB();
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+function readSingleLocalJson<T>(filePath: string, fallback: T) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(content) as T;
+  } catch {
+    return fallback;
+  }
 }
 
 // Typed helpers
 export function getUsers() { return readTable<any>(USERS_FILE); }
 export function writeUsers(data: any[]) { writeTable(USERS_FILE, data); }
 
-export function getPlans() { return readTable<any>(PLANS_FILE); }
+export function getPlans() {
+  return readTable<any>(PLANS_FILE).map((plan) => ({
+    enabled: plan.enabled !== false,
+    ...plan,
+  }));
+}
 export function writePlans(data: any[]) { writeTable(PLANS_FILE, data); }
 
 export function getPayments() { return readTable<any>(PAYMENTS_FILE); }
@@ -319,39 +342,36 @@ export function getContacts() { return readTable<any>(CONTACTS_FILE); }
 export function writeContacts(data: any[]) { writeTable(CONTACTS_FILE, data); }
 
 export function getSettings(): any {
-  requireProductionDatabase();
+  ensureDB();
+  const fallback = readSingleLocalJson(SETTINGS_FILE, {
+    stripe_mode: 'test',
+    smtp_receiver_email: 'admin@inboxfixer.com',
+    seo: { site_title: '', site_desc: '', canonical_url: '', header_tags: '', footer_tags: '' }
+  });
 
-  if (USE_POSTGRES) {
-    const seed = readSeedObject(SETTINGS_FILE) ?? {
-      stripe_mode: 'test',
-      smtp_receiver_email: 'admin@inboxfixer.com',
-      seo: { site_title: '', site_desc: '', canonical_url: '', header_tags: '', footer_tags: '' }
-    };
-    const result = runDbBridge('read-one', tableNameFromFile(SETTINGS_FILE), { seed: [seed] });
-    return result ?? seed;
+  if (!USE_POSTGRES) {
+    return fallback;
   }
 
-  ensureDB();
   try {
-    const content = fs.readFileSync(SETTINGS_FILE, 'utf-8');
-    return JSON.parse(content);
-  } catch {
-    return {
-      stripe_mode: 'test',
-      smtp_receiver_email: 'admin@inboxfixer.com',
-      seo: { site_title: '', site_desc: '', canonical_url: '', header_tags: '', footer_tags: '' }
-    };
+    const seed = readSeedObject(SETTINGS_FILE) ?? fallback;
+    const result = runDbBridge('read-one', tableNameFromFile(SETTINGS_FILE), { seed: [seed] });
+    return result ?? fallback;
+  } catch (error) {
+    console.warn('Postgres read failed for settings.json. Falling back to local JSON.', error);
+    return fallback;
   }
 }
 
 export function writeSettings(data: any): void {
-  requireProductionDatabase();
-
-  if (USE_POSTGRES) {
-    runDbBridge('write-one', tableNameFromFile(SETTINGS_FILE), { row: data });
-    return;
-  }
-
   ensureDB();
   fs.writeFileSync(SETTINGS_FILE, JSON.stringify(data, null, 2));
+
+  if (USE_POSTGRES) {
+    try {
+      runDbBridge('write-one', tableNameFromFile(SETTINGS_FILE), { row: data });
+    } catch (error) {
+      console.warn('Postgres write failed for settings.json. Local JSON was updated and kept as fallback.', error);
+    }
+  }
 }

@@ -9,7 +9,8 @@
       "1 Scan/day",
       "Plain English Explanations",
       "DNS Fix Templates"
-    ]
+    ],
+    "enabled": true
   },
   {
     "id": "free",
@@ -21,7 +22,8 @@
       "5 Scans/day",
       "Plain English Explanations",
       "Scan History Log"
-    ]
+    ],
+    "enabled": true
   },
   {
     "id": "pro",
@@ -34,6 +36,7 @@
       "Daily Monitored Alerts",
       "PDF Report Export",
       "Priority Support"
-    ]
+    ],
+    "enabled": true
   }
 ]

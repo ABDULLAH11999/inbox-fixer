@@ -113,7 +113,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Plans array is required.' }, { status: 400 });
       }
 
-      writePlans(plans);
+      const normalizedPlans = plans.map((plan: any) => ({
+        ...plan,
+        enabled: plan?.enabled !== false,
+      }));
+
+      writePlans(normalizedPlans);
       return NextResponse.json({ success: true, message: 'Plans configuration updated successfully.' });
     }
 

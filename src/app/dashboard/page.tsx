@@ -25,6 +25,7 @@ function DashboardContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [newDomain, setNewDomain] = useState('');
   const [loading, setLoading] = useState(true);
+  const [availablePlans, setAvailablePlans] = useState<any[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -145,6 +146,23 @@ function DashboardContent() {
     initDashboard();
   }, [router, searchParams]);
 
+  useEffect(() => {
+    async function loadPlans() {
+      try {
+        const res = await fetch('/api/plans');
+        const data = await res.json();
+
+        if (res.ok && Array.isArray(data.plans)) {
+          setAvailablePlans(data.plans);
+        }
+      } catch (err) {
+        console.warn('Failed to load available plans:', err);
+      }
+    }
+
+    loadPlans();
+  }, []);
+
   const handleScanSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDomain.trim()) return;
@@ -211,6 +229,7 @@ function DashboardContent() {
   }
 
   const isPro = profile?.plan === 'pro';
+  const isProEnabled = availablePlans.some((plan: any) => plan.id === 'pro' && plan.enabled !== false);
 
   return (
     <div className="min-h-screen bg-[#0a0f1e] flex flex-col justify-between">
@@ -262,7 +281,7 @@ function DashboardContent() {
               </div>
             </div>
             
-            {!isPro && (
+            {!isPro && isProEnabled && (
               <a 
                 href="/pricing"
                 className="bg-[#00ff88] text-[#0a0f1e] hover:bg-[#00dd77] px-5 py-2.5 rounded-xl text-xs font-syne font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
@@ -270,6 +289,11 @@ function DashboardContent() {
                 <Zap size={13} className="fill-[#0a0f1e]" />
                 Upgrade to Pro
               </a>
+            )}
+            {!isPro && !isProEnabled && (
+              <span className="text-[10px] sm:text-xs text-[#6b7fa8] border border-[#1e2d4a] px-3 py-2 rounded-xl font-mono">
+                Pro plan currently hidden by admin
+              </span>
             )}
           </div>
 

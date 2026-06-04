@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripeInstance } from '@/lib/stripe';
 import { getSession } from '@/lib/auth';
-import { getSettings } from '@/lib/db';
+import { getSettings, getPlans } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +13,14 @@ export async function POST(req: NextRequest) {
 
     const settings = getSettings();
     const isTestMode = settings.stripe_mode === 'test';
+    const proPlan = getPlans().find((plan) => plan.id === 'pro');
+
+    if (!proPlan || proPlan.enabled === false) {
+      return NextResponse.json(
+        { error: 'This subscription plan is currently disabled by the administrator.' },
+        { status: 403 }
+      );
+    }
 
     // Select correct price ID: use specific test price if defined, otherwise global
     let priceId = isTestMode
