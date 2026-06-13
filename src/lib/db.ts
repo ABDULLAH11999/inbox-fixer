@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { execFileSync } from 'child_process';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 
 // Define DB directory inside workspace
 const DB_DIR = path.join(process.cwd(), 'data');
@@ -20,6 +21,8 @@ const CONTACTS_FILE = path.join(DB_DIR, 'contacts.json');
 const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const READ_CACHE_TTL_MS = 5000;
+const PULL_REFRESH_TTL_MS = 15000;
+const execFileAsync = promisify(execFile);
 
 type CacheEntry<T> = {
   value: T;
@@ -29,6 +32,19 @@ type CacheEntry<T> = {
 
 const readCache = new Map<string, CacheEntry<any>>();
 let dbInitialized = false;
+
+type SyncState = {
+  lastPullAt: number;
+  pullInFlight: Promise<void> | null;
+  pushInFlight: Promise<void> | null;
+  pendingWrite: {
+    mode: 'many' | 'one';
+    data: any;
+  } | null;
+};
+
+const syncStates = new Map<string, SyncState>();
+let hydrationScheduled = false;
 
 function tableNameFromFile(filePath: string) {
   return path.basename(filePath, '.json').replace(/[^a-z0-9_]/gi, '_');
@@ -109,14 +125,133 @@ function writeLocalJson<T>(filePath: string, data: T[]) {
   setCachedRead(filePath, data);
 }
 
-function runDbBridge(action: string, tableName: string, payload: Record<string, unknown> = {}) {
-  const result = execFileSync(process.execPath, [DB_BRIDGE, action, tableName], {
+async function runDbBridgeAsync(action: string, tableName: string, payload: Record<string, unknown> = {}) {
+  const { stdout } = await execFileAsync(process.execPath, [DB_BRIDGE, action, tableName], {
     input: JSON.stringify(payload),
     encoding: 'utf8',
-    env: process.env
+    env: process.env,
+    maxBuffer: 10 * 1024 * 1024,
   });
 
-  return result ? JSON.parse(result) : null;
+  return stdout ? JSON.parse(stdout) : null;
+}
+
+function getSyncState(filePath: string): SyncState {
+  const existing = syncStates.get(filePath);
+  if (existing) {
+    return existing;
+  }
+
+  const created: SyncState = {
+    lastPullAt: 0,
+    pullInFlight: null,
+    pushInFlight: null,
+    pendingWrite: null,
+  };
+  syncStates.set(filePath, created);
+  return created;
+}
+
+function scheduleHydration() {
+  if (!USE_POSTGRES || hydrationScheduled) {
+    return;
+  }
+
+  hydrationScheduled = true;
+  setTimeout(() => {
+    void Promise.all([
+      syncLocalFromDatabase(USERS_FILE),
+      syncLocalFromDatabase(PLANS_FILE),
+      syncLocalFromDatabase(PAYMENTS_FILE),
+      syncLocalFromDatabase(SETTINGS_FILE, true),
+      syncLocalFromDatabase(SCANS_FILE),
+      syncLocalFromDatabase(BLOGS_FILE),
+      syncLocalFromDatabase(VISITS_FILE),
+      syncLocalFromDatabase(FEEDBACKS_FILE),
+      syncLocalFromDatabase(MONITORING_FILE),
+      syncLocalFromDatabase(GUEST_SCANS_FILE),
+      syncLocalFromDatabase(CONTACTS_FILE),
+      syncLocalFromDatabase(OTPS_FILE),
+    ]).catch((error) => {
+      console.warn('Background DB hydration failed.', error);
+    });
+  }, 0);
+}
+
+async function syncLocalFromDatabase(filePath: string, singleRow = false) {
+  if (!USE_POSTGRES) {
+    return;
+  }
+
+  const state = getSyncState(filePath);
+  if (state.pullInFlight || Date.now() - state.lastPullAt < PULL_REFRESH_TTL_MS) {
+    return;
+  }
+
+  const tableName = tableNameFromFile(filePath);
+  const localSnapshot = singleRow
+    ? readSingleLocalJson(filePath, null)
+    : readLocalJson<any>(filePath, []);
+
+  state.pullInFlight = (async () => {
+    try {
+      const seed = singleRow
+        ? { seed: [localSnapshot ?? readSeedObject(filePath) ?? {}] }
+        : { seed: localSnapshot.length > 0 ? localSnapshot : readSeedValue(filePath) };
+      const action = singleRow ? 'read-one' : 'read';
+      const result = await runDbBridgeAsync(action, tableName, seed);
+
+      if (result !== null && result !== undefined) {
+        if (singleRow) {
+          fs.writeFileSync(filePath, JSON.stringify(result, null, 2));
+          setCachedRead(filePath, result);
+        } else if (Array.isArray(result)) {
+          writeLocalJson(filePath, result);
+        }
+      }
+    } catch (error) {
+      console.warn(`Background sync failed for ${path.basename(filePath)}.`, error);
+    } finally {
+      state.lastPullAt = Date.now();
+      state.pullInFlight = null;
+    }
+  })();
+
+  await state.pullInFlight;
+}
+
+function scheduleWriteSync(filePath: string, data: any, mode: 'many' | 'one') {
+  if (!USE_POSTGRES) {
+    return;
+  }
+
+  const state = getSyncState(filePath);
+  state.pendingWrite = { mode, data };
+
+  if (state.pushInFlight) {
+    return;
+  }
+
+  state.pushInFlight = (async () => {
+    const tableName = tableNameFromFile(filePath);
+
+    try {
+      while (state.pendingWrite) {
+        const pending = state.pendingWrite;
+        state.pendingWrite = null;
+
+        if (pending.mode === 'one') {
+          await runDbBridgeAsync('write-one', tableName, { row: pending.data });
+        } else {
+          await runDbBridgeAsync('write', tableName, { rows: pending.data });
+        }
+      }
+    } catch (error) {
+      console.warn(`Background write sync failed for ${path.basename(filePath)}.`, error);
+    } finally {
+      state.pushInFlight = null;
+    }
+  })();
 }
 
 // Helper to ensure directory and files exist
@@ -316,40 +451,23 @@ function ensureDB() {
   if (!fs.existsSync(CONTACTS_FILE)) fs.writeFileSync(CONTACTS_FILE, JSON.stringify([], null, 2));
 
   dbInitialized = true;
+  scheduleHydration();
 }
 
 // Read/Write operations
 export function readTable<T>(filePath: string): T[] {
   ensureDB();
   const localRows = readLocalJson<T>(filePath, []);
-
-  if (!USE_POSTGRES) {
-    return localRows;
-  }
-
-  try {
-    const tableName = tableNameFromFile(filePath);
-    const seed = localRows.length > 0 ? localRows : readSeedValue(filePath);
-    const result = runDbBridge('read', tableName, { seed });
-    return (result ?? localRows) as T[];
-  } catch (error) {
-    console.warn(`Postgres read failed for ${path.basename(filePath)}. Falling back to local JSON.`, error);
-    return localRows;
-  }
+  void syncLocalFromDatabase(filePath).catch((error) => {
+    console.warn(`Background read sync failed for ${path.basename(filePath)}.`, error);
+  });
+  return localRows;
 }
 
 export function writeTable<T>(filePath: string, data: T[]): void {
   ensureDB();
   writeLocalJson(filePath, data);
-
-  if (USE_POSTGRES) {
-    try {
-      const tableName = tableNameFromFile(filePath);
-      runDbBridge('write', tableName, { rows: data });
-    } catch (error) {
-      console.warn(`Postgres write failed for ${path.basename(filePath)}. Local JSON was updated and kept as fallback.`, error);
-    }
-  }
+  scheduleWriteSync(filePath, data, 'many');
 }
 
 function readSingleLocalJson<T>(filePath: string, fallback: T) {
@@ -404,6 +522,9 @@ export function getSettings(): any {
   ensureDB();
   const cached = getCachedRead<any>(SETTINGS_FILE);
   if (cached) {
+    void syncLocalFromDatabase(SETTINGS_FILE, true).catch((error) => {
+      console.warn('Background settings sync failed.', error);
+    });
     return cached;
   }
 
@@ -413,34 +534,16 @@ export function getSettings(): any {
     seo: { site_title: '', site_desc: '', canonical_url: '', header_tags: '', footer_tags: '' }
   });
 
-  if (!USE_POSTGRES) {
-    setCachedRead(SETTINGS_FILE, fallback);
-    return fallback;
-  }
-
-  try {
-    const seed = readSeedObject(SETTINGS_FILE) ?? fallback;
-    const result = runDbBridge('read-one', tableNameFromFile(SETTINGS_FILE), { seed: [seed] });
-    const settings = result ?? fallback;
-    setCachedRead(SETTINGS_FILE, settings);
-    return settings;
-  } catch (error) {
-    console.warn('Postgres read failed for settings.json. Falling back to local JSON.', error);
-    setCachedRead(SETTINGS_FILE, fallback);
-    return fallback;
-  }
+  setCachedRead(SETTINGS_FILE, fallback);
+  void syncLocalFromDatabase(SETTINGS_FILE, true).catch((error) => {
+    console.warn('Background settings sync failed.', error);
+  });
+  return fallback;
 }
 
 export function writeSettings(data: any): void {
   ensureDB();
   fs.writeFileSync(SETTINGS_FILE, JSON.stringify(data, null, 2));
   setCachedRead(SETTINGS_FILE, data);
-
-  if (USE_POSTGRES) {
-    try {
-      runDbBridge('write-one', tableNameFromFile(SETTINGS_FILE), { row: data });
-    } catch (error) {
-      console.warn('Postgres write failed for settings.json. Local JSON was updated and kept as fallback.', error);
-    }
-  }
+  scheduleWriteSync(SETTINGS_FILE, data, 'one');
 }
