@@ -17,6 +17,7 @@ import { updateStaticSitemap } from '@/lib/sitemap';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
+    const blogId = req.nextUrl.searchParams.get('blogId');
 
     if (!session || session.role !== 'superadmin') {
       return NextResponse.json({ error: 'Unauthorized. Admin logins required.' }, { status: 403 });
@@ -27,10 +28,24 @@ export async function GET(req: NextRequest) {
     const payments = getPayments().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     const settings = getSettings();
     const scansCount = getScans().length;
-    const blogs = getBlogs().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const blogs = getBlogs();
     const visits = getVisits();
     const feedbacks = getFeedbacks().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     const contacts = getContacts().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    if (blogId) {
+      const blog = blogs.find((entry) => entry.id === blogId);
+
+      if (!blog) {
+        return NextResponse.json({ error: 'Blog post not found.' }, { status: 404 });
+      }
+
+      return NextResponse.json({ success: true, blog });
+    }
+
+    const blogSummaries = blogs
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .map(({ content, ...blog }) => blog);
 
     return NextResponse.json({
       success: true,
@@ -38,13 +53,13 @@ export async function GET(req: NextRequest) {
         totalUsers: users.length,
         totalPayments: payments.reduce((acc, curr) => acc + curr.amount, 0),
         totalScans: scansCount,
-        totalBlogs: blogs.length
+        totalBlogs: blogSummaries.length
       },
       users,
       plans,
       payments,
       settings,
-      blogs,
+      blogs: blogSummaries,
       visits,
       feedbacks,
       contacts

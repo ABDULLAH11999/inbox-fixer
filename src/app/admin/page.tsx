@@ -93,7 +93,7 @@ export default function AdminPage() {
         const data = await res.json();
         if (res.ok && data.user && data.user.role === 'superadmin') {
           setSessionUser(data.user);
-          await loadAdminData();
+          void loadAdminData();
         }
       } catch (err) {
         console.error('Auth verification failed:', err);
@@ -166,7 +166,7 @@ export default function AdminPage() {
         if (data.user.role === 'superadmin') {
           setSessionUser(data.user);
           toast.success('Access Granted', { description: 'Authenticated successfully as Superadmin.' });
-          await loadAdminData();
+          void loadAdminData();
         } else {
           toast.error('Access Denied', { description: 'You do not have administrative credentials.' });
           await fetch('/api/auth/logout', { method: 'POST' }); 
@@ -370,16 +370,35 @@ export default function AdminPage() {
     setBlogFormOpen(true);
   };
 
-  const handleOpenEditBlog = (blog: any) => {
-    setEditingBlogId(blog.id);
-    setBlogTitle(blog.title);
-    setBlogShortDesc(blog.short_desc);
-    setBlogContent(blog.content);
-    setBlogImage(blog.image);
-    setBlogTags(Array.isArray(blog.tags) ? blog.tags.join(', ') : blog.tags);
-    setBlogSeoTitle(blog.seo_title || '');
-    setBlogSeoDesc(blog.seo_desc || '');
-    setBlogSeoKeywords(blog.seo_keywords || '');
+  const handleOpenEditBlog = async (blog: any) => {
+    let fullBlog = blog;
+
+    if (!blog?.content) {
+      try {
+        const res = await fetch(`/api/admin?blogId=${blog.id}`);
+        const data = await res.json();
+        if (res.ok && data.blog) {
+          fullBlog = data.blog;
+        } else {
+          toast.error(data.error || 'Unable to load the full blog content.');
+          return;
+        }
+      } catch (err) {
+        console.error('Blog detail fetch failed:', err);
+        toast.error('Unable to load the full blog content.');
+        return;
+      }
+    }
+
+    setEditingBlogId(fullBlog.id);
+    setBlogTitle(fullBlog.title);
+    setBlogShortDesc(fullBlog.short_desc);
+    setBlogContent(fullBlog.content);
+    setBlogImage(fullBlog.image);
+    setBlogTags(Array.isArray(fullBlog.tags) ? fullBlog.tags.join(', ') : fullBlog.tags);
+    setBlogSeoTitle(fullBlog.seo_title || '');
+    setBlogSeoDesc(fullBlog.seo_desc || '');
+    setBlogSeoKeywords(fullBlog.seo_keywords || '');
     setBlogFormOpen(true);
   };
 
@@ -1636,7 +1655,7 @@ export default function AdminPage() {
                             <td className="p-4 pr-6 text-right">
                               <div className="flex justify-end gap-3.5">
                                 <button
-                                  onClick={() => handleOpenEditBlog(blog)}
+                                  onClick={() => { void handleOpenEditBlog(blog); }}
                                   className="text-[#8b9fc0] hover:text-[#00ff88] flex items-center gap-1 cursor-pointer"
                                   title="Edit Blog"
                                 >

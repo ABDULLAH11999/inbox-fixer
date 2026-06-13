@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
@@ -236,16 +237,16 @@ function DashboardContent() {
       {/* Header */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
-          <a href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+          <Link href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
             <Shield className="text-[#00ff88]" size={16} />
             <span>Inbox<span className="text-[#00ff88]">Fixer</span></span>
-          </a>
+          </Link>
           <div className="flex gap-2 sm:gap-4 items-center">
             {user?.role === 'superadmin' && (
-              <a href="/admin" className="text-[10px] sm:text-xs text-[#00ff88] hover:underline font-mono">
+              <Link href="/admin" className="text-[10px] sm:text-xs text-[#00ff88] hover:underline font-mono">
                 <span className="hidden xs:inline">Admin Control Panel</span>
                 <span className="xs:hidden">Admin</span>
-              </a>
+              </Link>
             )}
             <a href="/pricing" className="hidden xs:inline-block text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white transition-colors">Pricing</a>
             <button
