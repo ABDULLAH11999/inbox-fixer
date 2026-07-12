@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
@@ -155,19 +156,19 @@ export default function MonitoringPage() {
           </div>
 
           <div className="flex flex-col gap-2 pt-2">
-            <a 
+            <Link
               href="/pricing"
               className="bg-[#00ff88] text-[#0a0f1e] hover:bg-[#00dd77] py-3.5 rounded-xl font-syne font-bold transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Zap size={13} className="fill-[#0a0f1e]" />
               Upgrade to Pro for $9/mo
-            </a>
-            <a 
+            </Link>
+            <Link
               href="/dashboard"
               className="text-xs text-[#6b7fa8] hover:text-white transition-colors"
             >
               Back to Dashboard
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -179,17 +180,17 @@ export default function MonitoringPage() {
       {/* Header */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
-          <a href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+          <Link href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
             <Shield className="text-[#00ff88]" size={16} />
             <span>Inbox<span className="text-[#00ff88]">Fixer</span></span>
-          </a>
-          <a 
-            href="/dashboard" 
+          </Link>
+          <Link
+            href="/dashboard"
             className="flex items-center gap-1.5 text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white transition-colors bg-[#0f1729] px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-lg border border-[#1e2d4a] font-semibold"
           >
             <ArrowLeft size={13} />
             Dashboard
-          </a>
+          </Link>
         </div>
       </header>
 

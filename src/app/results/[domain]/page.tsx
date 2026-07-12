@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { 
@@ -332,13 +333,11 @@ export default function ResultsPage() {
     async function checkPlanAndScan() {
       // Check auth plan first
       try {
-        const resMe = await fetch('/api/dashboard/data');
+        const resMe = await fetch('/api/auth/me');
         if (resMe.ok) {
           const dataMe = await resMe.json();
-          setUserPlan(dataMe.profile?.plan as 'free' | 'pro');
-          if (dataMe.user?.email) {
-            setUserEmail(dataMe.user.email);
-          }
+          setUserPlan((dataMe.user?.plan as 'free' | 'pro') ?? null);
+          setUserEmail(dataMe.user?.email ?? null);
         }
       } catch (err) {
         console.warn('Profile fetch error:', err);
@@ -554,26 +553,26 @@ export default function ResultsPage() {
           <div className="flex flex-col gap-3">
             {isLimitError ? (
               <>
-                <a 
-                  href="/pricing" 
+                <Link
+                  href="/pricing"
                   className="bg-[#00ff88] text-[#0a0f1e] px-6 py-3.5 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
                   <Zap size={15} className="fill-current" /> Upgrade to PRO
-                </a>
-                <a 
-                  href="/" 
+                </Link>
+                <Link
+                  href="/"
                   className="bg-[#101626] text-[#8b9fc0] hover:text-white px-6 py-3.5 rounded-xl font-syne font-bold border border-[#1e2d4a] hover:border-[#00ff88]/30 active:scale-[0.98] transition-all"
                 >
                   Check Another Domain
-                </a>
+                </Link>
               </>
             ) : (
-              <a 
-                href="/" 
+              <Link
+                href="/"
                 className="bg-[#00ff88] text-[#0a0f1e] px-6 py-3.5 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all"
               >
                 Check Another Domain
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -588,18 +587,18 @@ export default function ResultsPage() {
       {/* Navbar */}
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
-          <a href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+          <Link href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
             <Shield className="text-[#00ff88]" size={16} />
             <span>Inbox<span className="text-[#00ff88]">Fixer</span></span>
-          </a>
-          <a 
-            href="/" 
+          </Link>
+          <Link
+            href="/"
             className="flex items-center gap-1.5 text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white transition-colors bg-[#0f1729] px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-lg border border-[#1e2d4a] font-semibold"
           >
             <ArrowLeft size={13} />
             <span className="hidden xs:inline">Check Another Domain</span>
             <span className="xs:hidden">New Check</span>
-          </a>
+          </Link>
         </div>
       </header>
 
@@ -693,18 +692,18 @@ export default function ResultsPage() {
               Create a free account to unlock 10 scans/day + save your history, or upgrade to Pro for unlimited scans, daily alerts, and PDF exports.
             </p>
             <div className="pt-2 flex justify-center gap-3">
-              <a 
-                href="/auth/signup" 
+              <Link
+                href="/auth/signup"
                 className="bg-[#00ff88] text-[#0a0f1e] px-5 py-2.5 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all text-xs"
               >
                 Create Free Account
-              </a>
-              <a 
-                href="/pricing" 
+              </Link>
+              <Link
+                href="/pricing"
                 className="bg-transparent hover:bg-white/5 border border-[#1e2d4a] text-white px-5 py-2.5 rounded-xl font-syne font-bold active:scale-[0.98] transition-all text-xs"
               >
                 Upgrade to Pro ($9/mo)
-              </a>
+              </Link>
             </div>
           </div>
         )}

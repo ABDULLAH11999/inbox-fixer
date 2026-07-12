@@ -14,10 +14,34 @@ import {
 import { sendEmail } from '@/lib/mail';
 import { updateStaticSitemap } from '@/lib/sitemap';
 
+type AdminSection =
+  | 'overview'
+  | 'users'
+  | 'plans'
+  | 'payments'
+  | 'config'
+  | 'seo'
+  | 'blogs'
+  | 'track'
+  | 'feedback'
+  | 'contacts';
+
+function getUserSummaries() {
+  return getUsers().map((u) => ({
+    id: u.id,
+    email: u.email,
+    role: u.role,
+    plan: u.plan,
+    is_active: u.is_active,
+    created_at: u.created_at,
+  }));
+}
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
     const blogId = req.nextUrl.searchParams.get('blogId');
+    const section = (req.nextUrl.searchParams.get('section') || 'overview') as AdminSection;
 
     if (!session || session.role !== 'superadmin') {
       return NextResponse.json({ error: 'Unauthorized. Admin logins required.' }, { status: 403 });
@@ -34,6 +58,7 @@ export async function GET(req: NextRequest) {
     const contacts = getContacts().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     if (blogId) {
+      const blogs = getBlogs();
       const blog = blogs.find((entry) => entry.id === blogId);
 
       if (!blog) {
@@ -43,27 +68,64 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: true, blog });
     }
 
-    const blogSummaries = blogs
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .map(({ content, ...blog }) => blog);
+    if (section === 'overview') {
+      const users = getUserSummaries();
+      const payments = getPayments();
+      const scansCount = getScans().length;
+      const totalBlogs = getBlogs().length;
 
-    return NextResponse.json({
-      success: true,
-      stats: {
-        totalUsers: users.length,
-        totalPayments: payments.reduce((acc, curr) => acc + curr.amount, 0),
-        totalScans: scansCount,
-        totalBlogs: blogSummaries.length
-      },
-      users,
-      plans,
-      payments,
-      settings,
-      blogs: blogSummaries,
-      visits,
-      feedbacks,
-      contacts
-    });
+      return NextResponse.json({
+        success: true,
+        section,
+        stats: {
+          totalUsers: users.length,
+          totalPayments: payments.reduce((acc, curr) => acc + curr.amount, 0),
+          totalScans: scansCount,
+          totalBlogs,
+        },
+      });
+    }
+
+    if (section === 'users') {
+      return NextResponse.json({ success: true, section, users: getUserSummaries() });
+    }
+
+    if (section === 'plans') {
+      return NextResponse.json({ success: true, section, plans: getPlans() });
+    }
+
+    if (section === 'payments') {
+      const payments = getPayments().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      return NextResponse.json({ success: true, section, payments });
+    }
+
+    if (section === 'config' || section === 'seo') {
+      return NextResponse.json({ success: true, section, settings: getSettings() });
+    }
+
+    if (section === 'blogs') {
+      const blogs = getBlogs()
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .map(({ content, ...blog }) => blog);
+
+      return NextResponse.json({ success: true, section, blogs });
+    }
+
+    if (section === 'track') {
+      return NextResponse.json({ success: true, section, visits: getVisits() });
+    }
+
+    if (section === 'feedback') {
+      const feedbacks = getFeedbacks().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      return NextResponse.json({ success: true, section, feedbacks, users: getUserSummaries() });
+    }
+
+    if (section === 'contacts') {
+      const contacts = getContacts().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      return NextResponse.json({ success: true, section, contacts, users: getUserSummaries() });
+    }
+
+    return NextResponse.json({ error: 'Invalid admin section.' }, { status: 400 });
 
   } catch (err: any) {
     console.error('Admin GET route error:', err);

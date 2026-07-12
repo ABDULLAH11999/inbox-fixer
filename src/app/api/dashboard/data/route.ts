@@ -6,6 +6,7 @@ import { getStripeInstance } from '@/lib/stripe';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
+    const shouldSyncStripe = req.nextUrl.searchParams.get('syncStripe') === '1';
 
     if (!session) {
       return NextResponse.json({ error: 'Not authenticated. Please log in.' }, { status: 401 });
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
     let activePlan = dbUser?.plan || 'free';
 
     // Fail-safe real-time Stripe upgrade synchronization check
-    if (activePlan === 'free' && dbUser) {
+    if (shouldSyncStripe && activePlan === 'free' && dbUser) {
       try {
         const stripe = getStripeInstance();
         const customers = await stripe.customers.list({

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Shield, Zap } from 'lucide-react';
@@ -65,7 +66,7 @@ export default function PricingPage() {
   useEffect(() => {
     async function checkUser() {
       try {
-        const res = await fetch('/api/dashboard/data');
+        const res = await fetch('/api/auth/me');
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
@@ -143,18 +144,18 @@ export default function PricingPage() {
 
       <header className="border-b border-[#1e2d4a]/50 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
-          <a href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+          <Link href="/" className="font-syne font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
             <Shield className="text-[#00ff88]" size={16} />
             <span>Inbox<span className="text-[#00ff88]">Fixer</span></span>
-          </a>
+          </Link>
           <div className="flex gap-3 sm:gap-4 items-center">
-            <a href="/" className="text-xs text-[#6b7fa8] hover:text-white transition-colors font-semibold">
+            <Link href="/" className="text-xs text-[#6b7fa8] hover:text-white transition-colors font-semibold">
               ← Home
-            </a>
+            </Link>
             {user && (
-              <a href="/dashboard" className="text-xs text-[#00ff88] hover:underline font-mono">
+              <Link href="/dashboard" className="text-xs text-[#00ff88] hover:underline font-mono">
                 Go to Dashboard
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -207,12 +208,12 @@ export default function PricingPage() {
               </div>
 
               <div className="pt-8">
-                <a
+                <Link
                   href="/"
                   className="w-full block text-center bg-[#1e2d4a]/60 hover:bg-[#1e2d4a] text-white border border-[#1e2d4a] px-4 py-3 rounded-xl text-xs font-syne font-bold transition-all cursor-pointer"
                 >
                   Scan Now
-                </a>
+                </Link>
               </div>
             </div>
           )}
@@ -246,12 +247,12 @@ export default function PricingPage() {
               </div>
 
               <div className="pt-8">
-                <a
+                <Link
                   href="/auth/signup"
                   className="w-full block text-center bg-white/10 hover:bg-white/15 text-white border border-[#1e2d4a] px-4 py-3 rounded-xl text-xs font-syne font-bold transition-all cursor-pointer"
                 >
                   Create Account
-                </a>
+                </Link>
               </div>
             </div>
           )}
@@ -305,12 +306,12 @@ export default function PricingPage() {
             &copy; {new Date().getFullYear()} InboxFixer. Protecting your business sender reputation.
           </div>
           <div className="flex gap-6 flex-wrap justify-center mt-2 md:mt-0">
-            <a href="/about" className="hover:text-white transition-colors">About Us</a>
-            <a href="/contact" className="hover:text-white transition-colors">Contact Support</a>
-            <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="/blog" className="hover:text-white transition-colors">Blog Hub</a>
-            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+            <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
+            <Link href="/contact" className="hover:text-white transition-colors">Contact Support</Link>
+            <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+            <Link href="/blog" className="hover:text-white transition-colors">Blog Hub</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
       </footer>

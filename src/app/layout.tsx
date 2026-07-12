@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Syne, IBM_Plex_Mono, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import TrackPageView from '@/components/TrackPageView';
+import { RoutePrefetcher } from '@/components/RoutePrefetcher';
 import './globals.css';
 
 const SITE_URL = 'https://inboxfixer.online';
@@ -9,6 +10,15 @@ const SITE_NAME = 'InboxFixer';
 const DEFAULT_TITLE = 'Free Domain DNS Check & Email DNS Record Fix Tool | InboxFixer';
 const DEFAULT_DESCRIPTION = 'Run a free domain DNS and email DNS check for SPF, DKIM, DMARC, MX, BIMI, MTA-STS, blacklist, and rDNS. Find why mail is not delivering and get exact DNS records to fix it fast.';
 const OG_IMAGE = '/opengraph-image.png';
+const PREFETCH_ROUTES = [
+  '/pricing',
+  '/blog',
+  '/contact',
+  '/about',
+  '/auth/login',
+  '/auth/signup',
+  '/dashboard',
+];
 
 const syne = Syne({
   subsets: ['latin'],
@@ -158,6 +168,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${syne.variable} ${mono.variable} ${inter.variable} font-sans bg-[#0a0f1e] text-white antialiased min-h-screen flex flex-col`}>
         <TrackPageView />
+        <RoutePrefetcher routes={PREFETCH_ROUTES} />
         {children}
         <Toaster theme="dark" position="bottom-right" />
       </body>

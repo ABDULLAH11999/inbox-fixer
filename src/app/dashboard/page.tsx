@@ -36,6 +36,34 @@ function DashboardContent() {
   const [cardBrand, setCardBrand] = useState('visa');
   const [submittingCard, setSubmittingCard] = useState(false);
 
+  async function loadDashboardData() {
+    const syncStripe = searchParams.get('upgraded') === 'true' ? '?syncStripe=1' : '';
+    const res = await fetch(`/api/dashboard/data${syncStripe}`);
+
+    if (res.status === 401) {
+      router.push('/auth/login');
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to fetch dashboard data');
+    }
+
+    setUser(data.user);
+    setProfile(data.profile);
+    setScans(data.scans || []);
+    setMonitored(data.monitoring || []);
+
+    if (searchParams.get('upgraded') === 'true') {
+      toast.success('Congratulations! Welcome to Pro', {
+        description: 'Your InboxFixer Pro subscription is now active. Daily monitoring is unlocked.',
+        duration: 8000,
+      });
+    }
+  }
+
   const handleLinkOrChangeCard = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanDigits = cardInput.replace(/\s/g, '');
@@ -60,17 +88,10 @@ function DashboardContent() {
         throw new Error(data.error || 'Failed to update billing card.');
       }
 
-      setProfile({
-        ...profile,
-        plan: data.profile.plan,
-        card_last4: data.profile.card_last4,
-        card_brand: data.profile.card_brand
-      });
-
       setShowCardModal(false);
       setCardInput('');
       toast.success(profile?.card_last4 ? 'Card details updated successfully!' : 'Card linked & Pro Subscription Activated!');
-      router.refresh();
+      await loadDashboardData();
     } catch (err: any) {
       toast.error(err.message || 'Billing linking failed.');
     } finally {
@@ -93,15 +114,8 @@ function DashboardContent() {
         throw new Error(data.error || 'Failed to remove card.');
       }
 
-      setProfile({
-        ...profile,
-        plan: data.profile.plan,
-        card_last4: data.profile.card_last4,
-        card_brand: data.profile.card_brand
-      });
-
       toast.success('Payment card removed. Subscription downgraded to Free.');
-      router.refresh();
+      await loadDashboardData();
     } catch (err: any) {
       toast.error(err.message || 'Billing removal failed.');
     }
@@ -110,32 +124,7 @@ function DashboardContent() {
   useEffect(() => {
     async function initDashboard() {
       try {
-        const res = await fetch('/api/dashboard/data');
-        
-        if (res.status === 401) {
-          router.push('/auth/login');
-          return;
-        }
-
-        const data = await res.json();
-        
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to fetch dashboard data');
-        }
-
-        setUser(data.user);
-        setProfile(data.profile);
-        setScans(data.scans || []);
-        setMonitored(data.monitoring || []);
-
-        // Check if just upgraded
-        if (searchParams.get('upgraded') === 'true') {
-          toast.success('Congratulations! Welcome to Pro', {
-            description: 'Your InboxFixer Pro subscription is now active. Daily monitoring is unlocked.',
-            duration: 8000,
-          });
-        }
-
+        await loadDashboardData();
       } catch (err: any) {
         console.error('Failed to load dashboard data:', err);
         toast.error('Failed to fetch dashboard logs.');
@@ -205,7 +194,6 @@ function DashboardContent() {
       if (res.ok) {
         toast.success('Logged out successfully.');
         router.push('/');
-        router.refresh();
       } else {
         toast.error('Logout failed.');
       }
@@ -248,7 +236,7 @@ function DashboardContent() {
                 <span className="xs:hidden">Admin</span>
               </Link>
             )}
-            <a href="/pricing" className="hidden xs:inline-block text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white transition-colors">Pricing</a>
+            <Link href="/pricing" className="hidden xs:inline-block text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white transition-colors">Pricing</Link>
             <button
               onClick={handleLogout}
               className="bg-transparent hover:bg-white/5 border border-[#1e2d4a] text-[10px] sm:text-xs text-[#6b7fa8] hover:text-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg transition-all cursor-pointer"
@@ -283,13 +271,13 @@ function DashboardContent() {
             </div>
             
             {!isPro && isProEnabled && (
-              <a 
+              <Link
                 href="/pricing"
                 className="bg-[#00ff88] text-[#0a0f1e] hover:bg-[#00dd77] px-5 py-2.5 rounded-xl text-xs font-syne font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Zap size={13} className="fill-[#0a0f1e]" />
                 Upgrade to Pro
-              </a>
+              </Link>
             )}
             {!isPro && !isProEnabled && (
               <span className="text-[10px] sm:text-xs text-[#6b7fa8] border border-[#1e2d4a] px-3 py-2 rounded-xl font-mono">
@@ -412,12 +400,12 @@ function DashboardContent() {
                 Domain Monitoring
               </h3>
               {isPro && (
-                <a 
-                  href="/dashboard/monitoring" 
+                <Link
+                  href="/dashboard/monitoring"
                   className="text-xs text-[#00ff88] hover:underline font-mono"
                 >
                   Manage
-                </a>
+                </Link>
               )}
             </div>
 
@@ -426,12 +414,12 @@ function DashboardContent() {
                 {monitored.length === 0 ? (
                   <div className="text-center p-6 bg-[#020812]/40 rounded-2xl border border-[#1e2d4a]/40">
                     <p className="text-xs text-[#6b7fa8]">You are not monitoring any domains yet.</p>
-                    <a 
+                    <Link
                       href="/dashboard/monitoring"
                       className="mt-3 inline-block bg-[#00ff88]/10 hover:bg-[#00ff88]/20 border border-[#00ff88]/30 text-[#00ff88] px-3.5 py-1.5 rounded-lg text-xs font-mono"
                     >
                       + Add Monitored Domain
-                    </a>
+                    </Link>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -460,13 +448,13 @@ function DashboardContent() {
                 <p className="text-xs text-[#6b7fa8] leading-relaxed">
                   Unlock daily deliverability audits. Get instant email alerts via SMTP when your SPF, DKIM, DMARC, or Blacklist status changes.
                 </p>
-                <a 
+                <Link
                   href="/pricing"
                   className="w-full inline-flex items-center justify-center gap-1.5 bg-[#00ff88]/10 hover:bg-[#00ff88]/20 border border-[#00ff88]/30 text-[#00ff88] px-4 py-2.5 rounded-xl text-xs font-syne font-bold transition-all cursor-pointer"
                 >
                   <Zap size={12} className="fill-[#00ff88]" />
                   Unlock with Pro ($9/mo)
-                </a>
+                </Link>
               </div>
             )}
           </div>

@@ -30,10 +30,12 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+type AdminTab = 'overview' | 'users' | 'plans' | 'payments' | 'config' | 'seo' | 'blogs' | 'track' | 'feedback' | 'contacts';
+
 export default function AdminPage() {
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'plans' | 'payments' | 'config' | 'seo' | 'blogs' | 'track' | 'feedback' | 'contacts'>('overview');
+  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [timeFilter, setTimeFilter] = useState<'1day' | '7days' | '30days' | 'overall'>('7days');
   const [visitFilter, setVisitFilter] = useState<'all' | 'unique'>('all');
   const router = useRouter();
@@ -45,7 +47,23 @@ export default function AdminPage() {
   const [loginLoading, setLoginLoading] = useState(false);
 
   // Admin Data states
-  const [adminData, setAdminData] = useState<any>(null);
+  const [adminData, setAdminData] = useState<any>({
+    loadedSections: {},
+    stats: {
+      totalUsers: 0,
+      totalPayments: 0,
+      totalScans: 0,
+      totalBlogs: 0,
+    },
+    users: [],
+    plans: [],
+    payments: [],
+    settings: null,
+    blogs: [],
+    visits: [],
+    feedbacks: [],
+    contacts: [],
+  });
   const [dataLoading, setDataLoading] = useState(false);
 
   // SMTP Test state
@@ -85,58 +103,51 @@ export default function AdminPage() {
   const [blogSeoDesc, setBlogSeoDesc] = useState('');
   const [blogSeoKeywords, setBlogSeoKeywords] = useState('');
 
-  // 1. Initial Load Checks
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch('/api/auth/me');
-        const data = await res.json();
-        if (res.ok && data.user && data.user.role === 'superadmin') {
-          setSessionUser(data.user);
-          void loadAdminData();
-        }
-      } catch (err) {
-        console.error('Auth verification failed:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    checkAuth();
-  }, []);
+  function mergeAdminSection(section: AdminTab, data: any) {
+    setAdminData((prev: any) => ({
+      ...(prev || {}),
+      ...data,
+      loadedSections: {
+        ...(prev?.loadedSections || {}),
+        [section]: true,
+      },
+    }));
 
-  // 2. Fetch all system data
-  async function loadAdminData() {
+    if (data.settings?.seo) {
+      setSeoTitle(data.settings.seo.site_title || '');
+      setSeoDesc(data.settings.seo.site_desc || '');
+      setSeoCanonical(data.settings.seo.canonical_url || '');
+      setSeoHeader(data.settings.seo.header_tags || '');
+      setSeoFooter(data.settings.seo.footer_tags || '');
+    }
+
+    if (data.settings) {
+      setStripeMode(data.settings.stripe_mode || 'test');
+      setReceiverEmail(data.settings.smtp_receiver_email || '');
+      setTestEmailAddress(data.settings.smtp_receiver_email || '');
+      setEnableOtp(data.settings.enable_otp !== false);
+    }
+
+    if (data.plans) {
+      setEditablePlans(JSON.parse(JSON.stringify(data.plans)).map((plan: any) => ({
+        enabled: plan.enabled !== false,
+        ...plan,
+      })));
+    }
+  }
+
+  async function loadAdminData(section: AdminTab = activeTab, force = false) {
+    if (!force && adminData?.loadedSections?.[section]) {
+      return;
+    }
+
     setDataLoading(true);
     try {
-      const res = await fetch('/api/admin');
+      const res = await fetch(`/api/admin?section=${section}`);
       const data = await res.json();
+
       if (res.ok) {
-        setAdminData(data);
-        
-        // Seed SEO values
-        if (data.settings?.seo) {
-          setSeoTitle(data.settings.seo.site_title || '');
-          setSeoDesc(data.settings.seo.site_desc || '');
-          setSeoCanonical(data.settings.seo.canonical_url || '');
-          setSeoHeader(data.settings.seo.header_tags || '');
-          setSeoFooter(data.settings.seo.footer_tags || '');
-        }
-
-        // Seed basic settings
-        if (data.settings) {
-          setStripeMode(data.settings.stripe_mode || 'test');
-          setReceiverEmail(data.settings.smtp_receiver_email || '');
-          setTestEmailAddress(data.settings.smtp_receiver_email || '');
-          setEnableOtp(data.settings.enable_otp !== false);
-        }
-
-        // Seed plans
-        if (data.plans) {
-          setEditablePlans(JSON.parse(JSON.stringify(data.plans)).map((plan: any) => ({
-            enabled: plan.enabled !== false,
-            ...plan,
-          })));
-        }
+        mergeAdminSection(section, data);
       } else {
         toast.error(data.error || 'Failed to sync admin console.');
       }
@@ -147,6 +158,33 @@ export default function AdminPage() {
       setDataLoading(false);
     }
   }
+
+  // 1. Initial Load Checks
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (res.ok && data.user && data.user.role === 'superadmin') {
+          setSessionUser(data.user);
+          void loadAdminData('overview', true);
+        }
+      } catch (err) {
+        console.error('Auth verification failed:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (!sessionUser) {
+      return;
+    }
+
+    void loadAdminData(activeTab);
+  }, [activeTab, sessionUser]);
 
   // 3. Admin Login handler
   const handleLogin = async (e: React.FormEvent) => {
@@ -166,7 +204,7 @@ export default function AdminPage() {
         if (data.user.role === 'superadmin') {
           setSessionUser(data.user);
           toast.success('Access Granted', { description: 'Authenticated successfully as Superadmin.' });
-          void loadAdminData();
+          void loadAdminData('overview', true);
         } else {
           toast.error('Access Denied', { description: 'You do not have administrative credentials.' });
           await fetch('/api/auth/logout', { method: 'POST' }); 
@@ -186,6 +224,18 @@ export default function AdminPage() {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       setSessionUser(null);
+      setAdminData({
+        loadedSections: {},
+        stats: { totalUsers: 0, totalPayments: 0, totalScans: 0, totalBlogs: 0 },
+        users: [],
+        plans: [],
+        payments: [],
+        settings: null,
+        blogs: [],
+        visits: [],
+        feedbacks: [],
+        contacts: [],
+      });
       toast.success('Logged out successfully from secure console.');
       router.push('/');
     } catch (err) {
@@ -212,7 +262,8 @@ export default function AdminPage() {
       if (res.ok) {
         toast.success(data.message || 'User modified successfully.');
         setEditingUserId(null);
-        await loadAdminData();
+        await loadAdminData('users', true);
+        await loadAdminData('overview', true);
       } else {
         toast.error(data.error || 'Failed to update user.');
       }
@@ -238,7 +289,8 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success(data.message || 'User account permanently purged.');
-        await loadAdminData();
+        await loadAdminData('users', true);
+        await loadAdminData('overview', true);
       } else {
         toast.error(data.error || 'Failed to delete user.');
       }
@@ -262,7 +314,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success(data.message || 'Pricing plans saved successfully.');
-        await loadAdminData();
+        await loadAdminData('plans', true);
       } else {
         toast.error(data.error || 'Failed to update plans.');
       }
@@ -288,7 +340,8 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success(data.message || 'System settings updated.');
-        await loadAdminData();
+        await loadAdminData('config', true);
+        await loadAdminData('seo', true);
       } else {
         toast.error(data.error || 'Settings update failed.');
       }
@@ -347,7 +400,8 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success(data.message || 'SEO tags saved. Crawlers updated.');
-        await loadAdminData();
+        await loadAdminData('seo', true);
+        await loadAdminData('config', true);
       } else {
         toast.error(data.error || 'SEO update failed.');
       }
@@ -432,7 +486,8 @@ export default function AdminPage() {
       if (res.ok) {
         toast.success(data.message || `Blog post successfully ${isEdit ? 'updated' : 'published'}.`);
         setBlogFormOpen(false);
-        await loadAdminData();
+        await loadAdminData('blogs', true);
+        await loadAdminData('overview', true);
       } else {
         toast.error(data.error || 'Failed to submit blog post.');
       }
@@ -457,7 +512,8 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success(data.message || 'Blog removed.');
-        await loadAdminData();
+        await loadAdminData('blogs', true);
+        await loadAdminData('overview', true);
       } else {
         toast.error(data.error || 'Failed to delete blog.');
       }
@@ -2258,7 +2314,7 @@ export default function AdminPage() {
                                     const responseData = await res.json();
                                     if (res.ok && responseData.success) {
                                       toast.success('Support ticket deleted successfully.');
-                                      await loadAdminData();
+                                      await loadAdminData('contacts', true);
                                     } else {
                                       toast.error(responseData.error || 'Failed to delete support ticket.');
                                     }

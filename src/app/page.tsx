@@ -32,7 +32,7 @@ export default function HomePage() {
   useEffect(() => {
     async function checkUser() {
       try {
-        const res = await fetch('/api/dashboard/data');
+        const res = await fetch('/api/auth/me');
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
@@ -65,7 +65,7 @@ export default function HomePage() {
       if (res.ok) {
         setUser(null);
         toast.success('Logged out successfully.');
-        router.refresh();
+        router.push('/');
       }
     } catch (err) {
       console.error('Logout error:', err);
@@ -157,16 +157,16 @@ export default function HomePage() {
           </Link>
 
           <nav className="flex gap-2 sm:gap-6 items-center">
-            <a href="/pricing" className="hidden xs:inline-block text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
+            <Link href="/pricing" className="hidden xs:inline-block text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
               Pricing
-            </a>
+            </Link>
             
             {user ? (
               <div className="flex items-center gap-2 sm:gap-4">
-                <a href="/dashboard" className="text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold flex items-center gap-1 bg-[#0f1729] px-2.5 py-1.5 rounded-lg border border-[#1e2d4a]">
+                <Link href="/dashboard" className="text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold flex items-center gap-1 bg-[#0f1729] px-2.5 py-1.5 rounded-lg border border-[#1e2d4a]">
                   <User size={13} className="text-[#00ff88]" />
                   Dashboard
-                </a>
+                </Link>
                 <button 
                   onClick={handleLogout}
                   className="bg-white/5 text-white hover:bg-white/10 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-syne font-bold transition-all text-xs sm:text-sm"
@@ -176,15 +176,15 @@ export default function HomePage() {
               </div>
             ) : (
               <>
-                <a href="/auth/login" className="text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
+                <Link href="/auth/login" className="text-[#6b7fa8] hover:text-white transition-colors text-xs sm:text-sm font-semibold">
                   Login
-                </a>
-                <a 
-                  href="/auth/signup" 
+                </Link>
+                <Link
+                  href="/auth/signup"
                   className="bg-[#00ff88] text-[#0a0f1e] px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-syne font-bold hover:bg-[#00dd77] hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm whitespace-nowrap"
                 >
                   Sign Up Free
-                </a>
+                </Link>
               </>
             )}
           </nav>
@@ -463,12 +463,12 @@ export default function HomePage() {
                 Be a part of a community that values honest, reliable, and secure domain auditing software. Try our tool completely free today, and protect your email sender reputation!
               </p>
             </div>
-            <a 
-              href="/auth/signup" 
+            <Link
+              href="/auth/signup"
               className="bg-[#00ff88] text-[#0a0f1e] px-6 py-3 rounded-xl font-syne font-bold hover:bg-[#00dd77] active:scale-[0.98] transition-all text-sm whitespace-nowrap shrink-0"
             >
               Get Started Free
-            </a>
+            </Link>
           </div>
 
         </div>
@@ -525,12 +525,12 @@ export default function HomePage() {
             &copy; {new Date().getFullYear()} InboxFixer. Protecting your business sender reputation.
           </div>
           <div className="flex gap-6 flex-wrap justify-center mt-2 md:mt-0">
-            <a href="/about" className="hover:text-white transition-colors">About Us</a>
-            <a href="/contact" className="hover:text-white transition-colors">Contact Support</a>
-            <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
+            <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
+            <Link href="/contact" className="hover:text-white transition-colors">Contact Support</Link>
+            <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
             <Link href="/blog" className="hover:text-white transition-colors">Blog Hub</Link>
-            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
       </footer>

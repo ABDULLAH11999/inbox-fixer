@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Shield, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
@@ -59,7 +60,6 @@ function LoginContent() {
       });
 
       router.push(redirectTo);
-      router.refresh();
     } catch (err: any) {
       console.error('Login error:', err);
       toast.error('Authentication Error', {
@@ -96,7 +96,6 @@ function LoginContent() {
       });
 
       router.push(redirectTo);
-      router.refresh();
     } catch (err: any) {
       console.error('OTP verify error:', err);
       toast.error('Verification Error', {
@@ -111,14 +110,14 @@ function LoginContent() {
     <div className="w-full max-w-md bg-[#0f1729]/80 border border-[#1e2d4a]/85 rounded-3xl p-8 shadow-2xl relative z-10 backdrop-blur-sm space-y-8">
       {/* Header Logo */}
       <div className="text-center space-y-3">
-        <a href="/" className="inline-flex items-center gap-2 group">
+        <Link href="/" className="inline-flex items-center gap-2 group">
           <div className="bg-[#020812] p-2.5 rounded-xl border border-[#1e2d4a] group-hover:border-[#00ff88]/50 transition-all">
             <Shield className="text-[#00ff88]" size={24} />
           </div>
           <span className="font-syne font-bold text-2xl tracking-tight text-white">
             Inbox<span className="text-[#00ff88]">Fixer</span>
           </span>
-        </a>
+        </Link>
         <h2 className="font-syne font-bold text-xl text-white">
           {otpRequired ? 'Enter OTP Verification' : 'Access Your Diagnostic History'}
         </h2>
@@ -241,9 +240,9 @@ function LoginContent() {
       {/* Footer switch */}
       <div className="text-center text-xs text-[#6b7fa8] pt-2">
         Don't have an account?{' '}
-        <a href={`/auth/signup?next=${encodeURIComponent(redirectTo)}`} className="text-[#00ff88] hover:underline font-semibold font-mono">
+        <Link href={`/auth/signup?next=${encodeURIComponent(redirectTo)}`} className="text-[#00ff88] hover:underline font-semibold font-mono">
           Sign Up Free
-        </a>
+        </Link>
       </div>
     </div>
   );

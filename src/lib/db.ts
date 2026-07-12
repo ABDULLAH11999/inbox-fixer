@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
+import { spawn } from 'child_process';
 
 // Define DB directory inside workspace
 const DB_DIR = path.join(process.cwd(), 'data');
@@ -20,9 +19,8 @@ const GUEST_SCANS_FILE = path.join(DB_DIR, 'guest_scans.json');
 const CONTACTS_FILE = path.join(DB_DIR, 'contacts.json');
 const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const READ_CACHE_TTL_MS = 5000;
-const PULL_REFRESH_TTL_MS = 15000;
-const execFileAsync = promisify(execFile);
+const READ_CACHE_TTL_MS = 15000;
+const PULL_REFRESH_TTL_MS = 60000;
 
 type CacheEntry<T> = {
   value: T;
@@ -126,14 +124,37 @@ function writeLocalJson<T>(filePath: string, data: T[]) {
 }
 
 async function runDbBridgeAsync(action: string, tableName: string, payload: Record<string, unknown> = {}) {
-  const { stdout } = await execFileAsync(process.execPath, [DB_BRIDGE, action, tableName], {
-    input: JSON.stringify(payload),
-    encoding: 'utf8',
-    env: process.env,
-    maxBuffer: 10 * 1024 * 1024,
+  const output = await new Promise<string>((resolve, reject) => {
+    const child = spawn(process.execPath, [DB_BRIDGE, action, tableName], {
+      env: process.env,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk;
+    });
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve(stdout);
+        return;
+      }
+
+      reject(new Error(stderr || `DB bridge exited with code ${code}`));
+    });
+
+    child.stdin.end(JSON.stringify(payload));
   });
 
-  return stdout ? JSON.parse(stdout) : null;
+  return output ? JSON.parse(output) : null;
 }
 
 function getSyncState(filePath: string): SyncState {
@@ -159,20 +180,30 @@ function scheduleHydration() {
 
   hydrationScheduled = true;
   setTimeout(() => {
-    void Promise.all([
-      syncLocalFromDatabase(USERS_FILE),
-      syncLocalFromDatabase(PLANS_FILE),
-      syncLocalFromDatabase(PAYMENTS_FILE),
-      syncLocalFromDatabase(SETTINGS_FILE, true),
-      syncLocalFromDatabase(SCANS_FILE),
-      syncLocalFromDatabase(BLOGS_FILE),
-      syncLocalFromDatabase(VISITS_FILE),
-      syncLocalFromDatabase(FEEDBACKS_FILE),
-      syncLocalFromDatabase(MONITORING_FILE),
-      syncLocalFromDatabase(GUEST_SCANS_FILE),
-      syncLocalFromDatabase(CONTACTS_FILE),
-      syncLocalFromDatabase(OTPS_FILE),
-    ]).catch((error) => {
+    void (async () => {
+      const tasks = [
+        () => syncLocalFromDatabase(USERS_FILE),
+        () => syncLocalFromDatabase(PLANS_FILE),
+        () => syncLocalFromDatabase(PAYMENTS_FILE),
+        () => syncLocalFromDatabase(SETTINGS_FILE, true),
+        () => syncLocalFromDatabase(SCANS_FILE),
+        () => syncLocalFromDatabase(BLOGS_FILE),
+        () => syncLocalFromDatabase(VISITS_FILE),
+        () => syncLocalFromDatabase(FEEDBACKS_FILE),
+        () => syncLocalFromDatabase(MONITORING_FILE),
+        () => syncLocalFromDatabase(GUEST_SCANS_FILE),
+        () => syncLocalFromDatabase(CONTACTS_FILE),
+        () => syncLocalFromDatabase(OTPS_FILE),
+      ];
+
+      for (const task of tasks) {
+        try {
+          await task();
+        } catch (error) {
+          console.warn('Background DB hydration step failed.', error);
+        }
+      }
+    })().catch((error) => {
       console.warn('Background DB hydration failed.', error);
     });
   }, 0);
@@ -189,15 +220,14 @@ async function syncLocalFromDatabase(filePath: string, singleRow = false) {
   }
 
   const tableName = tableNameFromFile(filePath);
-  const localSnapshot = singleRow
-    ? readSingleLocalJson(filePath, null)
-    : readLocalJson<any>(filePath, []);
+  const singleSnapshot = singleRow ? readSingleLocalJson(filePath, null) : null;
+  const tableSnapshot = singleRow ? null : readLocalJson<unknown>(filePath, []);
 
   state.pullInFlight = (async () => {
     try {
       const seed = singleRow
-        ? { seed: [localSnapshot ?? readSeedObject(filePath) ?? {}] }
-        : { seed: localSnapshot.length > 0 ? localSnapshot : readSeedValue(filePath) };
+        ? { seed: [singleSnapshot ?? readSeedObject(filePath) ?? {}] }
+        : { seed: tableSnapshot && tableSnapshot.length > 0 ? tableSnapshot : readSeedValue(filePath) };
       const action = singleRow ? 'read-one' : 'read';
       const result = await runDbBridgeAsync(action, tableName, seed);
 
